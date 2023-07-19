@@ -1,101 +1,218 @@
 ﻿@page "/simplecalculator"
 
-<h1>Simple Calculator</h1>
+<input @bind="First"/>
+
+<input @bind="Second"/>
+
+<input @bind="Action"/>
 
 <input @bind="Expression"/>
 
 <div>
-	<button @onclick="@(e => AddSymbol("%"))">%</button>
-	<button @onclick="Clear">CE</button>
+	<button @onclick="Percent">%</button>
+	<button @onclick="ClearExpression">CE</button>
 	<button @onclick="Clear">C</button>
 	<button @onclick="Delete"><i class="fa-solid fa-delete-left"></i></button>
 </div>
 
 <div>
-	<button @onclick="@(e => AddSymbol("%"))">%</button>
-	<button @onclick="Clear">CE</button>
-	<button @onclick="Clear">C</button>
-	<button @onclick="@(e => AddSymbol("/"))">/</button>
+	<button @onclick="MultInverse">1/x</button>
+	<button @onclick="Squared">x<sup>2</sup></button>
+	<button @onclick="SquareRoot"><i class="fa-solid fa-square-root-variable"></i></button>
+	<button @onclick="@(e => AddAct("/"))"><i class="fa-solid fa-divide"></i></button>
 </div>
 
 <div>
-	<button @onclick="@(e => AddSymbol("7"))">7</button>
-	<button @onclick="@(e => AddSymbol("8"))">8</button>
-	<button @onclick="@(e => AddSymbol("9"))">9</button>
-	<button @onclick="@(e => AddSymbol("*"))">*</button>
+	<button @onclick="@(e => AddNum("7"))">7</button>
+	<button @onclick="@(e => AddNum("8"))">8</button>
+	<button @onclick="@(e => AddNum("9"))">9</button>
+	<button @onclick="@(e => AddAct("*"))"><i class="fa-solid fa-xmark"></i></button>
 </div>
 
 <div>
-	<button @onclick="@(e => AddSymbol("4"))">4</button>
-	<button @onclick="@(e => AddSymbol("5"))">5</button>
-	<button @onclick="@(e => AddSymbol("6"))">6</button>
-	<button @onclick="@(e => AddSymbol("-"))">-</button>
+	<button @onclick="@(e => AddNum("4"))">4</button>
+	<button @onclick="@(e => AddNum("5"))">5</button>
+	<button @onclick="@(e => AddNum("6"))">6</button>
+	<button @onclick="@(e => AddAct("-"))">-</button>
 </div>
 
 <div>
-	<button @onclick="@(e => AddSymbol("1"))">1</button>
-	<button @onclick="@(e => AddSymbol("2"))">2</button>
-	<button @onclick="@(e => AddSymbol("3"))">3</button>
-	<button @onclick="@(e => AddSymbol("+"))">+</button>
+	<button @onclick="@(e => AddNum("1"))">1</button>
+	<button @onclick="@(e => AddNum("2"))">2</button>
+	<button @onclick="@(e => AddNum("3"))">3</button>
+	<button @onclick="@(e => AddAct("+"))">+</button>
 </div>
 
 <div>
-	<button @onclick="@(e => AddSymbol("00"))">00</button>
-	<button @onclick="@(e => AddSymbol("0"))">0</button>
-	<button @onclick="@(e => AddSymbol("."))">.</button>
-	<button @onclick="Solve">=</button>
+	<button @onclick="AdditInverse"><i class="fa-solid fa-plus-minus"></i></button>
+	<button @onclick="@(e => AddNum("0"))">0</button>
+	<button @onclick="AddDot">.</button>
+	<button @onclick="Equal">=</button>
 </div>
 
-@using Z.Expressions;
+@using System.Text.RegularExpressions;
 
 @code {
 
-	private string Expression = "";
+	private string Expression = "0";
+
+	private string First = "0";
+
+	private string Second = "0";
+
+	private string Action = "";
+
+	private bool PressedAction = false;
 
 	private void AddSymbol(string a)
 	{
-		//if (a == "00" || a == "0")
-		//{
-		//	if (Expression.Length == 0)
-		//	{
-		//		Expression = "0";
-		//	}
-		//	else
-		//	{
-		//		if (Expression[Expression.Length - 1] != '0')
-		//		{
-		//			var s = Expression.Replace("0", "");
-		//			if (s.Length > 0 && s[s.Length - 1] != '0')
-		//			{
-		//				Expression += a;
-		//			}
-		//		}
-		//	}
-		//}
-		//else
-		//{
-		//	Expression += a;
-		//}
-
 		Expression += a;
+	}
+
+	private void ClearExpression()
+	{
+		Expression = "0";
+		Second = "0";
+		PressedAction = false;
 	}
 
 	private void Clear()
 	{
-		Expression = "";
+		Expression = "0";
+		First = "0";
+		Second = "0";
+		Action = "";
+		PressedAction = false;
 	}
 
 	private void Delete()
 	{
-		if (Expression.Length > 0)
+		if (Expression.Length == 1 || Regex.Matches(Expression, @"[a-zA-Z]").Count > 0)
+		{
+			Expression = "0";
+		}
+		else if (Expression.Length > 1)
 		{
 			Expression = Expression.Remove(Expression.Length - 1);
 		}
+		PressedAction = false;
 	}
 
-	private void Solve()
+	private string Solve(string a, string act, string b)
 	{
-		Expression = Expression.Execute<double>().ToString();
+		var t1 = double.TryParse(a, System.Globalization.CultureInfo.InvariantCulture, out double num1);
+		var t2 = double.TryParse(b, System.Globalization.CultureInfo.InvariantCulture, out double num2);
+		double result = 0.0;
+		if (act == "+")
+		{
+			result = num1 + num2;
+		}
+		else if (act == "-")
+		{
+			result = num1 - num2;
+		}
+		else if (act == "*")
+		{
+			result = num1 * num2;
+		}
+		else if (act == "/")
+		{
+			result = num1 / num2;
+		}
+		return result.ToString(System.Globalization.CultureInfo.InvariantCulture);
+	}
+
+	private void Percent()
+	{
+		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		Expression = (a / 100).ToString(System.Globalization.CultureInfo.InvariantCulture);
+		PressedAction = false;
+	}
+
+	private void MultInverse()
+	{
+		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		Expression = (1 / a).ToString(System.Globalization.CultureInfo.InvariantCulture);
+		PressedAction = false;
+	}
+
+	private void Squared()
+	{
+		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		Expression = (a * a).ToString(System.Globalization.CultureInfo.InvariantCulture);
+		PressedAction = false;
+	}
+
+	private void SquareRoot()
+	{
+		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		Expression = (Math.Sqrt(a)).ToString(System.Globalization.CultureInfo.InvariantCulture);
+		PressedAction = false;
+	}
+
+	private void AdditInverse()
+	{
+		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		if (a == 0.0)
+		{
+			Expression = "0";
+		}
+		else
+		{
+			Expression = (-a).ToString(System.Globalization.CultureInfo.InvariantCulture);
+		}
+		PressedAction = false;
+	}
+
+	private void AddDot()
+	{
+		if (!Expression.Contains('.'))
+		{
+			Expression += ".";
+		}
+		PressedAction = false;
+	}
+
+	private void AddNum(string a)
+	{
+		if (Expression == "0" || PressedAction)
+		{
+			Expression = a;
+		}
+		else
+		{
+			Expression += a;
+		}
+		PressedAction = false;
+	}
+
+	private void AddAct(string a)
+	{
+		if (!PressedAction)
+		{
+			if (Action != "")
+			{
+				Second = Expression;
+				Expression = Solve(First, Action, Second);
+			}
+			First = Expression;
+			PressedAction = true;
+		}
+		Action = a;
+	}
+
+	private void Equal()
+	{
+		if (Action != "")
+		{
+			if (!PressedAction)
+			{
+				Second = Expression;
+			}
+			Expression = Solve(First, Action, Second);
+			First = Expression;
+		}
+		PressedAction = true;
 	}
 
 }
