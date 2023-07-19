@@ -1,0 +1,101 @@
+﻿@page "/simplecalculator"
+
+<h1>Simple Calculator</h1>
+
+<input @bind="Expression"/>
+
+<div>
+	<button @onclick="@(e => AddSymbol("%"))">%</button>
+	<button @onclick="Clear">CE</button>
+	<button @onclick="Clear">C</button>
+	<button @onclick="Delete"><i class="fa-solid fa-delete-left"></i></button>
+</div>
+
+<div>
+	<button @onclick="@(e => AddSymbol("%"))">%</button>
+	<button @onclick="Clear">CE</button>
+	<button @onclick="Clear">C</button>
+	<button @onclick="@(e => AddSymbol("/"))">/</button>
+</div>
+
+<div>
+	<button @onclick="@(e => AddSymbol("7"))">7</button>
+	<button @onclick="@(e => AddSymbol("8"))">8</button>
+	<button @onclick="@(e => AddSymbol("9"))">9</button>
+	<button @onclick="@(e => AddSymbol("*"))">*</button>
+</div>
+
+<div>
+	<button @onclick="@(e => AddSymbol("4"))">4</button>
+	<button @onclick="@(e => AddSymbol("5"))">5</button>
+	<button @onclick="@(e => AddSymbol("6"))">6</button>
+	<button @onclick="@(e => AddSymbol("-"))">-</button>
+</div>
+
+<div>
+	<button @onclick="@(e => AddSymbol("1"))">1</button>
+	<button @onclick="@(e => AddSymbol("2"))">2</button>
+	<button @onclick="@(e => AddSymbol("3"))">3</button>
+	<button @onclick="@(e => AddSymbol("+"))">+</button>
+</div>
+
+<div>
+	<button @onclick="@(e => AddSymbol("00"))">00</button>
+	<button @onclick="@(e => AddSymbol("0"))">0</button>
+	<button @onclick="@(e => AddSymbol("."))">.</button>
+	<button @onclick="Solve">=</button>
+</div>
+
+@using Z.Expressions;
+
+@code {
+
+	private string Expression = "";
+
+	private void AddSymbol(string a)
+	{
+		//if (a == "00" || a == "0")
+		//{
+		//	if (Expression.Length == 0)
+		//	{
+		//		Expression = "0";
+		//	}
+		//	else
+		//	{
+		//		if (Expression[Expression.Length - 1] != '0')
+		//		{
+		//			var s = Expression.Replace("0", "");
+		//			if (s.Length > 0 && s[s.Length - 1] != '0')
+		//			{
+		//				Expression += a;
+		//			}
+		//		}
+		//	}
+		//}
+		//else
+		//{
+		//	Expression += a;
+		//}
+
+		Expression += a;
+	}
+
+	private void Clear()
+	{
+		Expression = "";
+	}
+
+	private void Delete()
+	{
+		if (Expression.Length > 0)
+		{
+			Expression = Expression.Remove(Expression.Length - 1);
+		}
+	}
+
+	private void Solve()
+	{
+		Expression = Expression.Execute<double>().ToString();
+	}
+
+}
