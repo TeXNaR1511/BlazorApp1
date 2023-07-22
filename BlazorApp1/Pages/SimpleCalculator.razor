@@ -1,6 +1,12 @@
 ﻿@page "/simplecalculator"
 
-<input @bind="Expression"/>
+<div>
+	<input @bind="Calculation" readonly/>
+</div>
+
+<div>
+	<input @bind="Expression"/>
+</div>
 
 <div>
 	<button @onclick="Percent">%</button>
@@ -44,6 +50,8 @@
 	<button @onclick="Equal">=</button>
 </div>
 
+
+
 @using System.Text.RegularExpressions;
 
 @code {
@@ -58,6 +66,10 @@
 
 	private bool PressedAction = false;
 
+	private bool PressedEqual = false;
+
+	private string Calculation = "";
+
 	private void AddSymbol(string a)
 	{
 		Expression += a;
@@ -68,15 +80,24 @@
 		Expression = "0";
 		Second = "0";
 		PressedAction = false;
+		if (PressedEqual)
+		{
+			Calculation = "";
+			First = "0";
+			Action = "";
+		}
+		PressedEqual = false;
 	}
 
 	private void Clear()
 	{
 		Expression = "0";
+		Calculation = "";
 		First = "0";
 		Second = "0";
 		Action = "";
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private void Delete()
@@ -90,6 +111,7 @@
 			Expression = Expression.Remove(Expression.Length - 1);
 		}
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private string Solve(string a, string act, string b)
@@ -119,29 +141,37 @@
 	private void Percent()
 	{
 		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		Calculation = Expression + "%";
 		Expression = (a / 100).ToString(System.Globalization.CultureInfo.InvariantCulture);
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private void MultInverse()
 	{
 		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		Calculation = "1/(" + Expression + ")";
 		Expression = (1 / a).ToString(System.Globalization.CultureInfo.InvariantCulture);
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private void Squared()
 	{
 		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		Calculation = "sqr(" + Expression + ")";
 		Expression = (a * a).ToString(System.Globalization.CultureInfo.InvariantCulture);
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private void SquareRoot()
 	{
 		var b = double.TryParse(Expression, System.Globalization.CultureInfo.InvariantCulture, out double a);
+		Calculation = "sqrt(" + Expression + ")";
 		Expression = (Math.Sqrt(a)).ToString(System.Globalization.CultureInfo.InvariantCulture);
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private void AdditInverse()
@@ -156,6 +186,7 @@
 			Expression = (-a).ToString(System.Globalization.CultureInfo.InvariantCulture);
 		}
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private void AddDot()
@@ -165,10 +196,15 @@
 			Expression += ".";
 		}
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private void AddNum(string a)
 	{
+		if (PressedEqual)
+		{
+			Calculation = "";
+		}
 		if (Expression == "0" || PressedAction)
 		{
 			Expression = a;
@@ -178,6 +214,7 @@
 			Expression += a;
 		}
 		PressedAction = false;
+		PressedEqual = false;
 	}
 
 	private void AddAct(string a)
@@ -193,6 +230,8 @@
 			PressedAction = true;
 		}
 		Action = a;
+		Calculation = First + Action;
+		PressedEqual = false;
 	}
 
 	private void Equal()
@@ -204,9 +243,11 @@
 				Second = Expression;
 			}
 			Expression = Solve(First, Action, Second);
+			Calculation = First + Action + Second + "=";
 			First = Expression;
 		}
 		PressedAction = true;
+		PressedEqual = true;
 	}
 
 }
