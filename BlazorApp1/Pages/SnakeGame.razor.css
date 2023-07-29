@@ -1,0 +1,42 @@
+﻿body{
+
+}
+
+#grid {
+    width: 810px;
+    height: 455px;
+    border-style: solid;
+    border-width: 3px;
+    border-color: black;
+    margin-top: 10px;
+}
+
+#grid-row {
+    display: flex;
+    flex-direction: row; 
+}
+
+#grid-row div {
+    border-style: solid;
+    border-width: 1px;
+    border-color: blue;
+    width: 30px;
+    height: 30px;
+}
+
+button {
+    width: 100px;
+    height: 50px;
+    font-size: 30px;
+}
+
+.column {
+    float: left;
+    width: fit-content;
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
