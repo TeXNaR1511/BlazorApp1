@@ -63,7 +63,31 @@
 
 	private List<Point> Apple = new List<Point> 
 	{ 
-		new Point(7, 10)
+		new Point(5, 10),
+		new Point(5, 11),
+		new Point(5, 12),
+		new Point(5, 13),
+		new Point(5, 14),
+		new Point(6, 10),
+		new Point(6, 11),
+		new Point(6, 12),
+		new Point(6, 13),
+		new Point(6, 14),
+		new Point(7, 10),
+		new Point(7, 11),
+		new Point(7, 12),
+		new Point(7, 13),
+		new Point(7, 14),
+		new Point(8, 10),
+		new Point(8, 11),
+		new Point(8, 12),
+		new Point(8, 13),
+		new Point(8, 14),
+		new Point(9, 10),
+		new Point(9, 11),
+		new Point(9, 12),
+		new Point(9, 13),
+		new Point(9, 14),
 	};
 
 	private string CellColor(int row, int col)
@@ -73,11 +97,11 @@
 		{
 			result = "DarkGreen";
 		}
-		else if (Point.ContainsInList(new Point(row, col), Snake))
+		else if (Point.ContainsInList(new Point(row, col), Snake) >= 0)
 		{
 			result = "Lime";
 		}
-		else if (Point.ContainsInList(new Point(row, col), Apple))
+		else if (Point.ContainsInList(new Point(row, col), Apple) >= 0)
 		{
 			result = "Red";
 		}
@@ -98,7 +122,7 @@
 	{
 		if (!isRunning)
 		{
-			timer = new Timer(Update, null, 0, 125);
+			timer = new Timer(Update, null, 0, 100);
 			isRunning = true;
 		}
 	}
@@ -136,9 +160,10 @@
 			//	Direction = Direct[0];
 			//	Direct.RemoveAt(0);
 			//}
-			if (Snake[0].ContainsInList(Apple))
+			var t = Snake[0].ContainsInList(Apple);
+			if (t >= 0)
 			{
-				Apple.RemoveAt(0);
+				Apple.RemoveAt(t);
 				Score++;
 				Apple.Add(SpawnApple());
 			}
@@ -237,7 +262,7 @@
 	private Point SpawnApple()
 	{
 		Point result = new Point(r.Next(0, RowsAmount), r.Next(0, ColsAmount));
-		while (result.ContainsInList(Snake) || result.ContainsInList(Apple))
+		while (result.ContainsInList(Snake) >=0 || result.ContainsInList(Apple) >= 0)
 		{
 			result = new Point(r.Next(0, RowsAmount), r.Next(0, ColsAmount));
 		}
@@ -254,7 +279,31 @@
 		};
 		Apple = new List<Point>
 		{
-			new Point(7, 10)
+			new Point(5, 10),
+			new Point(5, 11),
+			new Point(5, 12),
+			new Point(5, 13),
+			new Point(5, 14),
+			new Point(6, 10),
+			new Point(6, 11),
+			new Point(6, 12),
+			new Point(6, 13),
+			new Point(6, 14),
+			new Point(7, 10),
+			new Point(7, 11),
+			new Point(7, 12),
+			new Point(7, 13),
+			new Point(7, 14),
+			new Point(8, 10),
+			new Point(8, 11),
+			new Point(8, 12),
+			new Point(8, 13),
+			new Point(8, 14),
+			new Point(9, 10),
+			new Point(9, 11),
+			new Point(9, 12),
+			new Point(9, 13),
+			new Point(9, 14),
 		};
 		Direction = new Point(0, 1);
 		//PrevDirection = new Point(0, 1);

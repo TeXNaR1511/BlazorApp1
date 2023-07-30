@@ -78,27 +78,38 @@
 			return new Point(a.X / b, a.Y / b);
 		}
 
-		public static bool ContainsInList(Point a, List<Point> list)
+		/// <summary>
+		/// Return index of Point inside list if Point in list, otherwise return -1
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="list"></param>
+		/// <returns></returns>
+		public static int ContainsInList(Point a, List<Point> list)
 		{
-			bool result = false;
+			int result = -1;
 			for (int i = 0; i < list.Count; i++)
 			{
 				if (list[i] == a)
 				{
-					result = true;
+					result = i;
 				}
 			}
 			return result;
 		}
 
-		public bool ContainsInList(List<Point> list)
+		/// <summary>
+		/// Return index of Point inside list if Point in list, otherwise return -1
+		/// </summary>
+		/// <param name="list"></param>
+		/// <returns></returns>
+		public int ContainsInList(List<Point> list)
 		{
-			bool result = false;
+			int result = -1;
 			for (int i = 0; i < list.Count; i++)
 			{
 				if (list[i] == this)
 				{
-					result = true;
+					result = i;
 				}
 			}
 			return result;
