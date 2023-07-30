@@ -3,12 +3,11 @@
 }
 
 #grid {
-    width: 810px;
+    width: 830px;
     height: 455px;
     border-style: solid;
     border-width: 3px;
     border-color: black;
-    margin-top: 10px;
 }
 
 #grid-row {
@@ -20,8 +19,8 @@
     border-style: solid;
     border-width: 1px;
     border-color: blue;
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
 }
 
 button {

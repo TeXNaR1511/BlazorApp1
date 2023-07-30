@@ -28,7 +28,7 @@
 			<button @onclick="ResetStopwatch">Reset</button>
 		</div>
 		<div>
-			<p style="font-size: 30px">Score: @Score</p>
+			<p style="font-size: 25px">Score: @Score</p>
 		</div>
 	</div>
 </div>
@@ -37,14 +37,22 @@
 
 @code
 {
-	private int RowsAmount = 15;
-	private int ColsAmount = 27;
+	private int RowsAmount = 18;
+	private int ColsAmount = 33;
 
 	private int Score = 0;
 
 	private Point Direction = new Point(0, 1);
 
-	private List<Point> Direct = new List<Point>();
+	private bool Moved = true;
+
+	//private bool MovedFromLastPress = false;
+
+	//private Point PrevDirection = new Point(0, 1);
+
+	//private bool ChangedDirection = false;
+
+	//private List<Point> Direct = new List<Point>();
 
 	private List<Point> Snake = new List<Point> 
 	{ 
@@ -90,7 +98,7 @@
 	{
 		if (!isRunning)
 		{
-			timer = new Timer(Update, null, 0, 200);
+			timer = new Timer(Update, null, 0, 125);
 			isRunning = true;
 		}
 	}
@@ -120,12 +128,14 @@
 		}
 		else
 		{
+			Moved = true;
+			//MovedFromLastPress = true;
 			Snake.Insert(0, Snake[0] + Direction);
-			if (Direct.Count != 0)
-			{
-				Direction = Direct[0];
-				Direct.RemoveAt(0);
-			}
+			//if (Direct.Count != 0)
+			//{
+			//	Direction = Direct[0];
+			//	Direct.RemoveAt(0);
+			//}
 			if (Snake[0].ContainsInList(Apple))
 			{
 				Apple.RemoveAt(0);
@@ -147,32 +157,60 @@
 
 	private void KeyHandler(KeyboardEventArgs e)
 	{
-		if (e.Key == "ArrowLeft")
+		StartStopwatch();
+		if (Moved)
 		{
-			if ((Direct.Count == 0 && Direction != new Point(0, 1)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(0, 1)))
+			if ((e.Key == "ArrowLeft" || e.Key == "a") && Direction.Y == 0)
 			{
-				Direct.Add(new Point(0, -1));
+				//StartStopwatch();
+				//MovedFromLastPress = false;
+				//PrevDirection = Direction;
+				Moved = false;
+				Direction = new Point(0, -1);
+				//ChangedDirection = true;
+				//if ((Direct.Count == 0 && Direction != new Point(0, 1)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(0, 1)))
+				//{
+				//	Direct.Add(new Point(0, -1));
+				//}
 			}
-		}
-		else if (e.Key == "ArrowRight")
-		{
-			if ((Direct.Count == 0 && Direction != new Point(0, -1)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(0, -1)))
+			else if ((e.Key == "ArrowRight" || e.Key == "d") && Direction.Y == 0)
 			{
-				Direct.Add(new Point(0, 1));
+				//StartStopwatch();
+				//MovedFromLastPress = false;
+				//PrevDirection = Direction;
+				Moved = false;
+				Direction = new Point(0, 1);
+				//ChangedDirection = true;
+				//if ((Direct.Count == 0 && Direction != new Point(0, -1)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(0, -1)))
+				//{
+				//	Direct.Add(new Point(0, 1));
+				//}
 			}
-		}
-		else if (e.Key == "ArrowUp")
-		{
-			if ((Direct.Count == 0 && Direction != new Point(1, 0)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(1, 0)))
+			else if ((e.Key == "ArrowUp" || e.Key == "w") && Direction.X == 0)
 			{
-				Direct.Add(new Point(-1, 0));
+				//StartStopwatch();
+				//MovedFromLastPress = false;
+				//PrevDirection = Direction;
+				Moved = false;
+				Direction = new Point(-1, 0);
+				//ChangedDirection = true;
+				//if ((Direct.Count == 0 && Direction != new Point(1, 0)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(1, 0)))
+				//{
+				//	Direct.Add(new Point(-1, 0));
+				//}
 			}
-		}
-		else if (e.Key == "ArrowDown")
-		{
-			if ((Direct.Count == 0 && Direction != new Point(-1, 0)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(-1, 0)))
+			else if ((e.Key == "ArrowDown" || e.Key == "s") && Direction.X == 0)
 			{
-				Direct.Add(new Point(1, 0));
+				//StartStopwatch();
+				//MovedFromLastPress = false;
+				//PrevDirection = Direction;
+				Moved = false;
+				Direction = new Point(1, 0);
+				//ChangedDirection = true;
+				//if ((Direct.Count == 0 && Direction != new Point(-1, 0)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(-1, 0)))
+				//{
+				//	Direct.Add(new Point(1, 0));
+				//}
 			}
 		}
 
@@ -219,7 +257,9 @@
 			new Point(7, 10)
 		};
 		Direction = new Point(0, 1);
-		Direct = new List<Point>();
+		//PrevDirection = new Point(0, 1);
+		//Direct = new List<Point>();
+		Moved = true;
 		Score = 0;
 	}
 }
