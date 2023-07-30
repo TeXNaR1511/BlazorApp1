@@ -106,22 +106,14 @@
 
 		public override bool Equals(object obj)
 		{
-			if (ReferenceEquals(this, obj))
-			{
-				return true;
-			}
+			var item = obj as Point;
 
-			if (ReferenceEquals(obj, null))
-			{
-				return false;
-			}
-
-			throw new NotImplementedException();
+			return item == this;
 		}
 
 		public override int GetHashCode()
 		{
-			throw new NotImplementedException();
+			return this.X.GetHashCode() ^ this.Y.GetHashCode();	
 		}
 	}
 }
