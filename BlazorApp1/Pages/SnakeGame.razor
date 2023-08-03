@@ -1,93 +1,105 @@
 ﻿@page "/snakegame"
 
-<div class="row" @onkeydown="KeyHandler" @onkeydown:preventDefault>
-	<div class="column">
-		<div id="grid">
-
-			@for (int i = 0; i < RowsAmount; i++)
-			{
-				<div id="grid-row">
-					@for (int j = 0; j < ColsAmount; j++)
-					{
-						var color = CellColor(i, j);
-						<div style="background: @color"></div>
-					}
-				</div>
-			}
+<div @onkeydown="KeyDownHandler">
+	<div id="grid" style="z-index: @(zindex ? 1 : 0)">
+		<div class="parent">
+			<p style="text-align: left;">Score: @Score</p>
+			<p style="text-align: right;">High Score: @HighScore</p>
 		</div>
+		@for (int i = 0; i < RowsAmount; i++)
+		{
+			<div id="grid-row">
+				@for (int j = 0; j < ColsAmount; j++)
+				{
+					var color = CellColor(i, j);
+					<div style="background: @color; 
+								width: @(450 / ColsAmount)px;
+								height: @(450 / RowsAmount)px;"></div>
+				}
+			</div>
+		}
 	</div>
 
-	<div class="column">
+	<div id="window-settings" style="z-index: @(!zindex ? 1 : 0)">
 		<div>
-			<button @onclick="StartStopwatch">Start</button>
+			<button @onclick="Play">Play</button>
 		</div>
 		<div>
-			<button @onclick="StopStopwatch">Stop</button>
+			<p style="font-size: 30px">High Score: @HighScore</p>
 		</div>
 		<div>
-			<button @onclick="ResetStopwatch">Reset</button>
+			<label for="areasize">Area Size</label>
+			<input type="range" name="areasize"
+				   min="0" max="2" step="1" @bind="AreaSize">
 		</div>
 		<div>
-			<p style="font-size: 25px">Score: @Score</p>
+			<label for="speed">Speed</label>
+			<input type="range" name="speed"
+				   min="0" max="2" step="1" @bind="Speed">
 		</div>
+		<div>
+			<label for="appleamount">Apple Amount</label>
+			<input type="range" name="appleamount"
+				   min="1" max="5" step="2" @bind="AppleAmount">
+		</div>
+		<!--<div>
+			<label for="cellwidth">Cell Width</label>
+			<input type="range" name="cellwidth"
+				   min="10" max="50" step="1" @bind="CellWidth">
+		</div>
+		<div>
+			<label for="cellheight">Cell Height</label>
+			<input type="range" name="cellheight"
+				   min="10" max="50" step="1" @bind="CellHeight">
+		</div>
+		<div>
+			<label for="gridborderwidth">Grid Border Width</label>
+			<input type="range" name="gridborderwidth"
+				   min="0" max="20" step="1" @bind="GridBorderWidth">
+		</div>
+		<div>
+			<label for="cellborderwidth">Cell Border Width</label>
+			<input type="range" name="cellborderwidth"
+				   min="0" max="20" step="1" @bind="CellBorderWidth">
+		</div>-->
 	</div>
 </div>
 
 
 
+
+
 @code
 {
+
+	private int AreaSize = 1;
+
+	private int Speed = 1;
+
+	private int AppleAmount = 1;
+
 	private int RowsAmount = 18;
-	private int ColsAmount = 33;
+
+	private int ColsAmount = 18;
 
 	private int Score = 0;
+
+	private int HighScore = 0;
 
 	private Point Direction = new Point(0, 1);
 
 	private bool Moved = true;
 
-	//private bool MovedFromLastPress = false;
-
-	//private Point PrevDirection = new Point(0, 1);
-
-	//private bool ChangedDirection = false;
-
-	//private List<Point> Direct = new List<Point>();
-
 	private List<Point> Snake = new List<Point> 
 	{ 
-		new Point(7, 4), 
-		new Point(7, 3),
-		new Point(7, 2)
+		new Point(3, 4), 
+		new Point(3, 3),
+		new Point(3, 2)
 	};
 
 	private List<Point> Apple = new List<Point> 
 	{ 
-		new Point(5, 10),
-		new Point(5, 11),
-		new Point(5, 12),
-		new Point(5, 13),
-		new Point(5, 14),
-		new Point(6, 10),
-		new Point(6, 11),
-		new Point(6, 12),
-		new Point(6, 13),
-		new Point(6, 14),
-		new Point(7, 10),
-		new Point(7, 11),
-		new Point(7, 12),
-		new Point(7, 13),
-		new Point(7, 14),
-		new Point(8, 10),
-		new Point(8, 11),
-		new Point(8, 12),
-		new Point(8, 13),
-		new Point(8, 14),
-		new Point(9, 10),
-		new Point(9, 11),
-		new Point(9, 12),
-		new Point(9, 13),
-		new Point(9, 14),
+		new Point(3, 7),
 	};
 
 	private string CellColor(int row, int col)
@@ -95,156 +107,182 @@
 		string result = "";
 		if (new Point(row, col) == Snake[0])
 		{
-			result = "DarkGreen";
+			result = "darkblue";
 		}
 		else if (Point.ContainsInList(new Point(row, col), Snake) >= 0)
 		{
-			result = "Lime";
+			result = "royalblue";
 		}
 		else if (Point.ContainsInList(new Point(row, col), Apple) >= 0)
 		{
-			result = "Red";
+			result = "red";
+		}
+		else if ((row + col) % 2 == 0)
+		{
+			result = "greenyellow";
 		}
 		else
 		{
-			result = "white";
+			result = "lightgreen";
 		}
-		//Console.WriteLine(row);
-		//Console.WriteLine(col);
-		//Console.WriteLine(result);
 		return result;
 	}
 
-	private bool isRunning = false;
+	private bool IsRunning = false;
+
 	private Timer timer;
 
-	private void StartStopwatch()
+	private bool zindex = false;
+
+	private void Play()
 	{
-		if (!isRunning)
+		zindex = true;
+		RowsAmount = AreaSize == 0 ? 10 : AreaSize == 1 ? 18 : 30;
+		ColsAmount = AreaSize == 0 ? 10 : AreaSize == 1 ? 18 : 30;
+		Apple = AppleAmount == 1 ?
+			new List<Point>
+				{
+				new Point(3, 7),
+				}
+			: AppleAmount == 3 ?
+			new List<Point>
+				{
+				new Point(3, 7),
+				new Point(2, 6),
+				new Point(4, 6),
+				}
+			:
+			new List<Point>
+				{
+				new Point(3, 7),
+				new Point(2, 6),
+				new Point(2, 8),
+				new Point(4, 6),
+				new Point(4, 8),
+				};
+	}
+
+	private void Start()
+	{
+		if (!IsRunning)
 		{
-			timer = new Timer(Update, null, 0, 100);
-			isRunning = true;
+			timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
+			IsRunning = true;
 		}
 	}
 
-	private void StopStopwatch()
+	private void Stop()
 	{
-		if (isRunning)
+		if (IsRunning)
 		{
 			timer?.Dispose();
-			isRunning = false;
+			IsRunning = false;
 		}
 	}
 
-	private void ResetStopwatch()
+	private void Reset()
 	{
 		Initial();
-		StopStopwatch();
+		Stop();
 	}
 
 	private void Next()
 	{
-		//Console.WriteLine("Direction");
-		//Console.WriteLine(Direction);
-		if (CheckOutOfBounds(Snake[0] + Direction) || Snake.Count != Snake.Distinct().Count())
+		if (CheckOutOfBounds(Snake[0] + Direction) || Snake.Count != Snake.Distinct().Count() || 
+			Snake.Count == ColsAmount * RowsAmount)
 		{
-			ResetStopwatch();
+			Reset();
 		}
 		else
 		{
+			if (Moved)
+			{
+				Snake.Insert(0, Snake[0] + Direction);
+				var t = Snake[0].ContainsInList(Apple);
+				if (t >= 0)
+				{
+					Apple.RemoveAt(t);
+					Score++;
+					if (Apple.Count + Snake.Count < ColsAmount * RowsAmount) Apple.Add(SpawnApple());
+				}
+				else
+				{
+					Snake.RemoveAt(Snake.Count - 1);
+				}
+			}
 			Moved = true;
-			//MovedFromLastPress = true;
-			Snake.Insert(0, Snake[0] + Direction);
-			//if (Direct.Count != 0)
-			//{
-			//	Direction = Direct[0];
-			//	Direct.RemoveAt(0);
-			//}
-			var t = Snake[0].ContainsInList(Apple);
-			if (t >= 0)
-			{
-				Apple.RemoveAt(t);
-				Score++;
-				Apple.Add(SpawnApple());
-			}
-			else
-			{
-				Snake.RemoveAt(Snake.Count - 1);
-			}
 		}		
 	}
 
 	private void Update(object state)
 	{
 		Next();
+		//Moved = true;
 		InvokeAsync(StateHasChanged);
 	}
 
-	private void KeyHandler(KeyboardEventArgs e)
+	private void KeyDownHandler(KeyboardEventArgs e)
 	{
-		StartStopwatch();
-		if (Moved)
+		if (zindex)
 		{
 			if ((e.Key == "ArrowLeft" || e.Key == "a") && Direction.Y == 0)
 			{
-				//StartStopwatch();
-				//MovedFromLastPress = false;
-				//PrevDirection = Direction;
-				Moved = false;
+				Start();
 				Direction = new Point(0, -1);
-				//ChangedDirection = true;
-				//if ((Direct.Count == 0 && Direction != new Point(0, 1)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(0, 1)))
-				//{
-				//	Direct.Add(new Point(0, -1));
-				//}
+				Next();
+				Moved = false;
+				if (!IsRunning) IsRunning = true;
+				//MindDelay();
+				//Stop();
+				//timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
 			}
 			else if ((e.Key == "ArrowRight" || e.Key == "d") && Direction.Y == 0)
 			{
-				//StartStopwatch();
-				//MovedFromLastPress = false;
-				//PrevDirection = Direction;
-				Moved = false;
+				Start();
 				Direction = new Point(0, 1);
-				//ChangedDirection = true;
-				//if ((Direct.Count == 0 && Direction != new Point(0, -1)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(0, -1)))
-				//{
-				//	Direct.Add(new Point(0, 1));
-				//}
+				Next();
+				Moved = false;
+				if (!IsRunning) IsRunning = true;
+				//MindDelay();
+				//Stop();
+				//timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
 			}
 			else if ((e.Key == "ArrowUp" || e.Key == "w") && Direction.X == 0)
 			{
-				//StartStopwatch();
-				//MovedFromLastPress = false;
-				//PrevDirection = Direction;
-				Moved = false;
+				Start();
 				Direction = new Point(-1, 0);
-				//ChangedDirection = true;
-				//if ((Direct.Count == 0 && Direction != new Point(1, 0)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(1, 0)))
-				//{
-				//	Direct.Add(new Point(-1, 0));
-				//}
+				Next();
+				Moved = false;
+				if (!IsRunning) IsRunning = true;
+				//MindDelay();
+				//Stop();
+				//timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
 			}
 			else if ((e.Key == "ArrowDown" || e.Key == "s") && Direction.X == 0)
 			{
-				//StartStopwatch();
-				//MovedFromLastPress = false;
-				//PrevDirection = Direction;
-				Moved = false;
+				Start();
 				Direction = new Point(1, 0);
-				//ChangedDirection = true;
-				//if ((Direct.Count == 0 && Direction != new Point(-1, 0)) || (Direct.Count > 0 && Direct[Direct.Count - 1] != new Point(-1, 0)))
-				//{
-				//	Direct.Add(new Point(1, 0));
-				//}
+				Next();
+				Moved = false;
+				if (!IsRunning) IsRunning = true;
+				//MindDelay();
+				//Stop();
+				//timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
 			}
+			else if (e.Key == "p")
+			{
+				Stop();
+			}
+			else if (e.Key == "Escape")
+			{
+				Reset();
+			}
+			else if (e.Key == "Enter")
+			{
+				Play();
+			}
+			//Moved = true;
 		}
-
-		//Console.WriteLine("Direct");
-		//for (int i = 0; i < Direct.Count; i++)
-		//{
-		//	Console.WriteLine(Direct[i]);
-		//}
-
 	}
 
 	private bool CheckOutOfBounds(Point a)
@@ -273,42 +311,40 @@
 	{
 		Snake = new List<Point>
 		{
-			new Point(7, 4),
-			new Point(7, 3),
-			new Point(7, 2)
+			new Point(3, 4),
+			new Point(3, 3),
+			new Point(3, 2)
 		};
-		Apple = new List<Point>
-		{
-			new Point(5, 10),
-			new Point(5, 11),
-			new Point(5, 12),
-			new Point(5, 13),
-			new Point(5, 14),
-			new Point(6, 10),
-			new Point(6, 11),
-			new Point(6, 12),
-			new Point(6, 13),
-			new Point(6, 14),
-			new Point(7, 10),
-			new Point(7, 11),
-			new Point(7, 12),
-			new Point(7, 13),
-			new Point(7, 14),
-			new Point(8, 10),
-			new Point(8, 11),
-			new Point(8, 12),
-			new Point(8, 13),
-			new Point(8, 14),
-			new Point(9, 10),
-			new Point(9, 11),
-			new Point(9, 12),
-			new Point(9, 13),
-			new Point(9, 14),
-		};
+		Apple = AppleAmount == 1 ?
+			new List<Point>
+				{
+				new Point(3, 7),
+				}
+			: AppleAmount == 3 ?
+			new List<Point>
+				{
+				new Point(3, 7),
+				new Point(2, 6),
+				new Point(4, 6),
+				}
+			:
+			new List<Point>
+				{
+				new Point(3, 7),
+				new Point(2, 6),
+				new Point(2, 8),
+				new Point(4, 6),
+				new Point(4, 8),
+				};
 		Direction = new Point(0, 1);
-		//PrevDirection = new Point(0, 1);
-		//Direct = new List<Point>();
 		Moved = true;
+		HighScore = Score > HighScore ? Score : HighScore;
 		Score = 0;
+		zindex = false;
+	}
+
+	async Task MindDelay()
+	{
+		await Task.Delay(500);
 	}
 }
