@@ -27,12 +27,6 @@
     border-color: darkgreen;
 }
 
-button {
-    width: 100px;
-    height: 50px;
-    font-size: 30px;
-}
-
 .column {
     float: left;
     width: fit-content;
@@ -45,11 +39,12 @@ button {
 }
 
 #window-settings {
-    width: 300px;
-    height: 300px;
-    background-color: grey;
+    width: 459px;
+    height: 491px;
+    background-color: rgba(0, 0, 0, 0.6);
     position: absolute;
-    margin-top: -10px;
+    top: 63px;
+    display: flex;
 }
 
 #grid p {
@@ -64,4 +59,15 @@ button {
     margin-top: -42px;
     margin-left: 5px;
     margin-bottom: -19px;
+}
+
+#inner-window {
+    width: 280px;
+    height: 380px;
+    background-color: yellowgreen;
+    position: relative;
+    padding: 20px;
+    text-align: center;
+    border-radius: 25px;
+    margin: auto;
 }

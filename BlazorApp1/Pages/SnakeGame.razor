@@ -21,47 +21,29 @@
 	</div>
 
 	<div id="window-settings" style="z-index: @(!zindex ? 1 : 0)">
-		<div>
-			<button @onclick="Play">Play</button>
+		<div id="inner-window">
+			<div>
+				<button @onclick="Play">Play</button>
+			</div>
+			<div>
+				<p style="font-size: 30px">High Score: @HighScore</p>
+			</div>
+			<div>
+				<label for="areasize">Area Size</label>
+				<input type="range" name="areasize"
+					   min="0" max="2" step="1" @bind="AreaSize">
+			</div>
+			<div>
+				<label for="speed">Speed</label>
+				<input type="range" name="speed"
+					   min="0" max="2" step="1" @bind="Speed">
+			</div>
+			<div>
+				<label for="appleamount">Apple Amount</label>
+				<input type="range" name="appleamount"
+					   min="1" max="5" step="2" @bind="AppleAmount">
+			</div>
 		</div>
-		<div>
-			<p style="font-size: 30px">High Score: @HighScore</p>
-		</div>
-		<div>
-			<label for="areasize">Area Size</label>
-			<input type="range" name="areasize"
-				   min="0" max="2" step="1" @bind="AreaSize">
-		</div>
-		<div>
-			<label for="speed">Speed</label>
-			<input type="range" name="speed"
-				   min="0" max="2" step="1" @bind="Speed">
-		</div>
-		<div>
-			<label for="appleamount">Apple Amount</label>
-			<input type="range" name="appleamount"
-				   min="1" max="5" step="2" @bind="AppleAmount">
-		</div>
-		<!--<div>
-			<label for="cellwidth">Cell Width</label>
-			<input type="range" name="cellwidth"
-				   min="10" max="50" step="1" @bind="CellWidth">
-		</div>
-		<div>
-			<label for="cellheight">Cell Height</label>
-			<input type="range" name="cellheight"
-				   min="10" max="50" step="1" @bind="CellHeight">
-		</div>
-		<div>
-			<label for="gridborderwidth">Grid Border Width</label>
-			<input type="range" name="gridborderwidth"
-				   min="0" max="20" step="1" @bind="GridBorderWidth">
-		</div>
-		<div>
-			<label for="cellborderwidth">Cell Border Width</label>
-			<input type="range" name="cellborderwidth"
-				   min="0" max="20" step="1" @bind="CellBorderWidth">
-		</div>-->
 	</div>
 </div>
 
@@ -71,7 +53,6 @@
 
 @code
 {
-
 	private int AreaSize = 1;
 
 	private int Speed = 1;
@@ -195,20 +176,17 @@
 		}
 		else
 		{
-			if (Moved)
+			Snake.Insert(0, Snake[0] + Direction);
+			var t = Snake[0].ContainsInList(Apple);
+			if (t >= 0)
 			{
-				Snake.Insert(0, Snake[0] + Direction);
-				var t = Snake[0].ContainsInList(Apple);
-				if (t >= 0)
-				{
-					Apple.RemoveAt(t);
-					Score++;
-					if (Apple.Count + Snake.Count < ColsAmount * RowsAmount) Apple.Add(SpawnApple());
-				}
-				else
-				{
-					Snake.RemoveAt(Snake.Count - 1);
-				}
+				Apple.RemoveAt(t);
+				Score++;
+				if (Apple.Count + Snake.Count < ColsAmount * RowsAmount) Apple.Add(SpawnApple());
+			}
+			else
+			{
+				Snake.RemoveAt(Snake.Count - 1);
 			}
 			Moved = true;
 		}		
@@ -223,51 +201,33 @@
 
 	private void KeyDownHandler(KeyboardEventArgs e)
 	{
-		if (zindex)
+		if (Moved && zindex)
 		{
+			Start();
+			if (!IsRunning) IsRunning = true;
 			if ((e.Key == "ArrowLeft" || e.Key == "a") && Direction.Y == 0)
 			{
-				Start();
 				Direction = new Point(0, -1);
-				Next();
+				//Next();
 				Moved = false;
-				if (!IsRunning) IsRunning = true;
-				//MindDelay();
-				//Stop();
-				//timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
 			}
 			else if ((e.Key == "ArrowRight" || e.Key == "d") && Direction.Y == 0)
 			{
-				Start();
 				Direction = new Point(0, 1);
-				Next();
+				//Next();
 				Moved = false;
-				if (!IsRunning) IsRunning = true;
-				//MindDelay();
-				//Stop();
-				//timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
 			}
 			else if ((e.Key == "ArrowUp" || e.Key == "w") && Direction.X == 0)
 			{
-				Start();
 				Direction = new Point(-1, 0);
-				Next();
+				//Next();
 				Moved = false;
-				if (!IsRunning) IsRunning = true;
-				//MindDelay();
-				//Stop();
-				//timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
 			}
 			else if ((e.Key == "ArrowDown" || e.Key == "s") && Direction.X == 0)
 			{
-				Start();
 				Direction = new Point(1, 0);
-				Next();
+				//Next();
 				Moved = false;
-				if (!IsRunning) IsRunning = true;
-				//MindDelay();
-				//Stop();
-				//timer = new Timer(Update, null, 0, Speed == 0 ? 400 : Speed == 1 ? 200 : 100);
 			}
 			else if (e.Key == "p")
 			{
@@ -276,10 +236,6 @@
 			else if (e.Key == "Escape")
 			{
 				Reset();
-			}
-			else if (e.Key == "Enter")
-			{
-				Play();
 			}
 			//Moved = true;
 		}
@@ -341,10 +297,5 @@
 		HighScore = Score > HighScore ? Score : HighScore;
 		Score = 0;
 		zindex = false;
-	}
-
-	async Task MindDelay()
-	{
-		await Task.Delay(500);
 	}
 }
