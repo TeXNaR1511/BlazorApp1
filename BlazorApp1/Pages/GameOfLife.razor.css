@@ -1,0 +1,75 @@
+﻿body {
+    overflow: scroll;
+}
+
+#grid {
+    width: 999px;
+    height: 429px;
+    border-style: solid;
+    border-left-width: 5px;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    border-top-width: 5px;
+    border-color: black;
+    /*position: absolute;*/
+    margin-top: -10px;
+    margin-left: -25px;
+    overflow: hidden;
+}
+
+#grid-row {
+    display: flex;
+    flex-direction: row;
+    margin-left: 0px;
+}
+
+#grid-row div {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+.column {
+    float: left;
+    width: fit-content;
+}
+
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#window-settings {
+    width: 463px;
+    height: 489px;
+    background-color: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    top: 63px;
+    display: flex;
+}
+
+#grid p {
+    color: white;
+    font-size: 30px;
+    width: 200px;
+}
+
+.parent {
+    display: flex;
+    align-items: center;
+    margin-top: -42px;
+    margin-left: 5px;
+    margin-bottom: -19px;
+}
+
+#inner-window {
+    width: 280px;
+    height: 380px;
+    background-color: yellowgreen;
+    position: relative;
+    padding: 20px;
+    text-align: center;
+    border-radius: 25px;
+    margin: auto;
+}

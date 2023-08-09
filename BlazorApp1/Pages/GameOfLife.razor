@@ -1,7 +1,292 @@
 ﻿@page "/gameoflife"
 
-<h3>Game Of Life</h3>
+<div>
+	<div id="grid">
+		@for (int i = 0; i < RowsAmount; i++)
+		{
+			<div id="grid-row">
+				@for (int j = 0; j < ColsAmount; j++)
+				{
+					//Console.WriteLine($"{i} {j}");
+					var color = CellColor(i, j);
+					var temp_i = i;
+					var temp_j = j;
+					<div style="background: @color; width: @CellWH.ToString()px; height: @CellWH.ToString()px;"
+					@onclick="(e) => CellClick(e, temp_i, temp_j)"></div>
+				}
+			</div>
+		}
+	</div>
+
+	<div class="btn-group" style="width: 1000px; margin-left: -25px; margin-top: 5px; ">
+		<button class="btn btn-primary" type="button" style="font-size: 30px; width: 17%">Gen: @GenerationCount</button>
+		<button class="btn btn-primary" type="button" style="font-size: 30px; width: 9%" @onclick="StartStop">@ButtonName</button>
+		<button class="btn btn-primary" type="button" style="font-size: 30px; width: 9%" @onclick="Next">Next</button>
+		<button class="btn btn-primary" type="button" style="font-size: 30px; width: 9%" @onclick="Clear">Clear</button>
+		<button class="btn btn-primary" type="button" style="font-size: 30px; width: 12%" @onclick="SpawnPoints">Random</button>
+		<button class="btn btn-primary" type="button" style="font-size: 30px; width: 5%" @onclick="DecreaseSpeed">-</button>
+		<button class="btn btn-primary" type="button" style="font-size: 30px; width: 10%" >Speed</button>
+		<button class="btn btn-primary" type="button" style="font-size: 30px; width: 5%" @onclick="IncreaseSpeed">+</button>
+		<a class="btn btn-primary" type="button" style="font-size: 30px; width: 9%" href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life" target="_blank">Rules</a>
+	</div>
+</div>
 
 @code {
+
+	private int CellWH = 15;//25;
+
+	private int RowsAmount = 28; //16;
+
+	private int ColsAmount = 66; //39;
+
+	private List<Point> LivingPoints = new List<Point>();
+
+	private int GenerationCount = 0;
+
+	private int Speed = 200;
+
+	private int MinSpeed = 1000;
+
+	private int MaxSpeed = 25;
+
+	private int IncrementSpeed = 25;
+
+	private string CellColor(int row, int col)
+	{
+		string result = "";
+
+		if (new Point(row, col).ContainsInList(LivingPoints) == -1) result = "white";
+		else result = "royalblue";
+		return result;
+	}
+
+	private void CellClick(MouseEventArgs e, int row, int col)
+	{
+		Point temp = new Point(row, col);
+		//Console.WriteLine(CountNeighbours(temp, LivingPoints));
+		if (temp.ContainsInList(LivingPoints) == -1) LivingPoints.Add(new Point(row, col));
+		else LivingPoints.Remove(temp);
+	}
+
+	private bool IsRunning = false;
+
+	private Timer Timer;
+
+	private string ButtonName = "Start";
+
+	private void StartStop()
+	{
+		if (!IsRunning)
+		{
+			Timer = new Timer(Update, null, 0, Speed);
+			IsRunning = true;
+			ButtonName = "Stop";
+			//GenerationCount = 0;
+		}
+		else
+		{
+			Timer?.Dispose();
+			IsRunning = false;
+			ButtonName = "Start";
+		}
+	}
+
+	private void Clear()
+	{
+		LivingPoints.Clear();
+		if (IsRunning)
+		{
+			Timer?.Dispose();
+			IsRunning = false;
+			ButtonName = "Start";
+		}
+		GenerationCount = 0;
+	}
+
+	private Random r = new Random();
+
+	private void SpawnPoints()
+	{
+		for (int i = 0; i < RowsAmount * ColsAmount / 4; i++)
+		{
+			Point temp = new Point(r.Next(0, RowsAmount), r.Next(0, ColsAmount));
+			//Console.WriteLine(temp);
+			if (temp.ContainsInList(LivingPoints) == -1)
+			{
+				LivingPoints.Add(temp);
+			}
+		}
+	}
+
+	private void Update(object state)
+	{
+		Next();
+		InvokeAsync(StateHasChanged);
+	}
+
+	private void Next()
+	{
+		if (LivingPoints.Count == 0 && IsRunning)
+		{
+			StartStop();
+		}
+		else
+		{
+			//use SimpleGOL or BetterGOL
+			//Console.WriteLine("live");
+			//for (int i = 0; i < LivingPoints.Count; i++)
+			//{
+			//	Console.WriteLine(LivingPoints[i]);
+			//}
+			//Console.WriteLine("neigh");
+			//List<Point> t = PointsNeighbours(LivingPoints, RowsAmount, ColsAmount);
+			//for (int i = 0; i < t.Count; i++)
+			//{
+			//	Console.WriteLine(t[i]);
+			//}
+			LivingPoints = BetterGOL(LivingPoints, RowsAmount, ColsAmount);
+			GenerationCount++;
+		}
+	}
+
+	private int CountNeighbours(Point a, List<Point> Points, int rows, int cols)
+	{
+		int result = 0;
+		if (a.X + 1 < rows && new Point(a.X + 1, a.Y).ContainsInList(Points) >= 0)
+		{
+			result++;
+		}
+		if (a.X + 1 < rows  && a.Y - 1 >= 0 && new Point(a.X + 1, a.Y - 1).ContainsInList(Points) >= 0)
+		{
+			result++;
+		}
+		if (a.Y - 1 >= 0 && new Point(a.X, a.Y - 1).ContainsInList(Points) >= 0)
+		{
+			result++;
+		}
+		if (a.X - 1 >= 0 && a.Y - 1 >= 0 && new Point(a.X - 1, a.Y - 1).ContainsInList(Points) >= 0)
+		{
+			result++;
+		}
+		if (a.X - 1 >= 0 && new Point(a.X - 1, a.Y).ContainsInList(Points) >= 0)
+		{
+			result++;
+		}
+		if (a.X - 1 >= 0 && a.Y + 1 < cols && new Point(a.X - 1, a.Y + 1).ContainsInList(Points) >= 0)
+		{
+			result++;
+		}
+		if (a.Y + 1 < cols && new Point(a.X, a.Y + 1).ContainsInList(Points) >= 0)
+		{
+			result++;
+		}
+		if (a.X + 1 < rows && a.Y + 1 < cols && new Point(a.X + 1, a.Y + 1).ContainsInList(Points) >= 0)
+		{
+			result++;
+		}
+		return result;
+	}
+
+	private void DecreaseSpeed()
+	{
+		if (Speed + IncrementSpeed <= MinSpeed) Speed += IncrementSpeed;
+	}
+
+	private void IncreaseSpeed()
+	{
+		if (Speed - IncrementSpeed >= MaxSpeed) Speed -= IncrementSpeed;
+	}
+
+	private List<Point> SimpleGOL(List<Point> gen, int rows, int cols)
+	{
+		List<Point> nextgen = new List<Point>();
+		for (int i = 0; i < rows; i++)
+		{
+			for (int j = 0; j < cols; j++)
+			{
+				Point p = new Point(i, j);
+				int n = CountNeighbours(p, gen, rows, cols);
+				if (p.ContainsInList(gen) >= 0)
+				{
+					if (n == 2 || n == 3) nextgen.Add(p);
+				}
+				else
+				{
+					if (n == 3) nextgen.Add(p);
+				}
+			}
+		}
+		return nextgen;
+	}
+
+	/// <summary>
+	/// Creates List contains Points from gen and all their neighbours
+	/// </summary>
+	/// <param name="gen"></param>
+	/// <param name="rows"></param>
+	/// <param name="cols"></param>
+	/// <returns></returns>
+	private List<Point> PointsNeighbours(List<Point> gen, int rows, int cols)
+	{
+		List<Point> result = new List<Point>();
+		for (int i = 0; i < gen.Count; i++)
+		{
+			if (gen[i].ContainsInList(result) == -1) result.Add(gen[i]);
+			if (gen[i].X + 1 < rows && new Point(gen[i].X + 1, gen[i].Y).ContainsInList(result) == -1)
+			{
+				result.Add(new Point(gen[i].X + 1, gen[i].Y));
+			}
+			if (gen[i].X + 1 < rows && gen[i].Y - 1 >= 0 && new Point(gen[i].X + 1, gen[i].Y - 1).ContainsInList(result) == -1)
+			{
+				result.Add(new Point(gen[i].X + 1, gen[i].Y - 1));
+			}
+			if (gen[i].Y - 1 >= 0 && new Point(gen[i].X, gen[i].Y - 1).ContainsInList(result) == -1)
+			{
+				result.Add(new Point(gen[i].X, gen[i].Y - 1));
+			}
+			if (gen[i].X - 1 >= 0 && gen[i].Y - 1 >= 0 && new Point(gen[i].X - 1, gen[i].Y - 1).ContainsInList(result) == -1)
+			{
+				result.Add(new Point(gen[i].X - 1, gen[i].Y - 1));
+			}
+			if (gen[i].X - 1 >= 0 && new Point(gen[i].X - 1, gen[i].Y).ContainsInList(result) == -1)
+			{
+				result.Add(new Point(gen[i].X - 1, gen[i].Y));
+			}
+			if (gen[i].X - 1 >= 0 && gen[i].Y + 1 < cols && new Point(gen[i].X - 1, gen[i].Y + 1).ContainsInList(result) == -1)
+			{
+				result.Add(new Point(gen[i].X - 1, gen[i].Y + 1));
+			}
+			if (gen[i].Y + 1 < cols && new Point(gen[i].X, gen[i].Y + 1).ContainsInList(result) == -1)
+			{
+				result.Add(new Point(gen[i].X, gen[i].Y + 1));
+			}
+			if (gen[i].X + 1 < rows && gen[i].Y + 1 < cols && new Point(gen[i].X + 1, gen[i].Y + 1).ContainsInList(result) == -1)
+			{
+				result.Add(new Point(gen[i].X + 1, gen[i].Y + 1));
+			}
+		}
+		return result;
+	}
+
+	private List<Point> BetterGOL(List<Point> gen, int rows, int cols)
+	{
+		List<Point> nextgen = new List<Point>();
+		List<Point> candidates = PointsNeighbours(gen, rows, cols);
+		for (int i = 0; i < candidates.Count; i++)
+		{
+			Point p = candidates[i];
+			int n = CountNeighbours(p, gen, rows, cols);
+			if (p.ContainsInList(gen) >= 0)
+			{
+				if (n == 2 || n == 3) nextgen.Add(p);
+			}
+			else
+			{
+				if (n == 3) nextgen.Add(p);
+			}
+		}
+		return nextgen;
+	}
+
 
 }

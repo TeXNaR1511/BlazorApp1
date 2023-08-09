@@ -23,25 +23,25 @@
 	<div id="window-settings" style="z-index: @(!zindex ? 1 : 0)">
 		<div id="inner-window">
 			<div>
-				<button @onclick="Play">Play</button>
-			</div>
-			<div>
 				<p style="font-size: 30px">High Score: @HighScore</p>
 			</div>
 			<div>
-				<label for="areasize">Area Size</label>
+				<label style="font-size: 25px;" for="areasize">Area Size</label>
 				<input type="range" name="areasize"
 					   min="0" max="2" step="1" @bind="AreaSize">
 			</div>
 			<div>
-				<label for="speed">Speed</label>
+				<label style="font-size: 25px;" for="speed">Speed</label>
 				<input type="range" name="speed"
 					   min="0" max="2" step="1" @bind="Speed">
 			</div>
 			<div>
-				<label for="appleamount">Apple Amount</label>
+				<label style="font-size: 25px;" for="appleamount">Apple Amount</label>
 				<input type="range" name="appleamount"
 					   min="1" max="5" step="2" @bind="AppleAmount">
+			</div>
+			<div>
+				<button class="btn btn-primary" style="font-size: 30px; width: 100px; margin: 15px" @onclick="Play">Play</button>
 			</div>
 		</div>
 	</div>
@@ -192,12 +192,12 @@
 		}		
 	}
 
-	private void Update(object state)
-	{
-		Next();
-		//Moved = true;
-		InvokeAsync(StateHasChanged);
-	}
+		private void Update(object state)
+		{
+			Next();
+			//Moved = true;
+			InvokeAsync(StateHasChanged);
+		}
 
 	private void KeyDownHandler(KeyboardEventArgs e)
 	{
