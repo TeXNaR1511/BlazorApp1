@@ -1,0 +1,79 @@
+﻿#field-cell:nth-child(n):nth-child(-n+9) {
+    border-top-width: 5px;
+}
+
+#field-cell:nth-child(n+73):nth-child(-n+81) {
+    border-bottom-width: 5px;
+}
+
+#field-cell:nth-child(3n) {
+    border-right-width: 5px;
+}
+
+#field-cell:nth-child(9n+1) {
+    border-left-width: 5px;
+}
+
+#field-cell:nth-child(n+19):nth-child(-n+27) {
+    border-bottom-width: 5px;
+}
+
+#field-cell:nth-child(n+46):nth-child(-n+54) {
+    border-bottom-width: 5px;
+}
+
+#field {
+    display: grid;
+    grid-template-columns: 56px 52px 56px 52px 52px 56px 52px 52px 56px;
+    grid-template-rows: 56px 52px 56px 52px 52px 56px 52px 52px 56px;
+    justify-content: center;
+    align-content: center;
+    list-style: none;
+    gap: 0rem;
+    margin: 0 0 2vw;
+    padding: 0;
+    font-size: 40px;
+}
+
+#field-cell {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.parent {
+    display: flex;
+    align-items: center;
+}
+
+#numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 4vw);
+    grid-template-rows: repeat(3, 4vw);
+    justify-content: center;
+    align-content: center;
+    grid-gap: 0rem;
+    list-style: none;
+    margin: 0 0 2vw;
+    padding: 0;
+    font-size: calc(2vw + 10px);
+}
+
+#numpad-cell {
+    margin: 2px;
+    padding: 0;
+    text-align: center;
+    border: 0;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: gainsboro;
+    color: royalblue;
+}

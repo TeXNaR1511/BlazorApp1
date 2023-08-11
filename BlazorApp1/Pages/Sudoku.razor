@@ -1,0 +1,67 @@
+﻿@page "/sudoku"
+
+<div class="parent">
+    <ul id="field">
+        @for (int i = 0; i < RowsAmount; i++)
+        {
+            for (int j = 0; j < ColsAmount; j++)
+            {
+                int temp_i = i;
+                int temp_j = j;
+                <li id="field-cell" @onclick="() => ClickOnField(temp_i, temp_j)"
+                    style="background: @BackgroundColorCell(temp_i, temp_j)">
+                    @ReturnFieldCell(temp_i, temp_j)
+                </li>
+            }
+        }
+    </ul>
+    <ul id="numpad">
+        @for (int i = 0; i < 9; i++)
+        {
+            int temp_i = i;
+            <li id="numpad-cell" @onclick="() => ClickOnNumpad(temp_i + 1)">@(i + 1)</li>
+        }
+    </ul>
+</div>
+
+@code {
+
+    private int RowsAmount = 9;
+
+    private int ColsAmount = 9;
+
+    private int[,] Field = new int[9, 9];
+
+    private Point HighlightCell = new Point();
+
+    private void ClickOnField(int i, int j)
+    {
+        //Console.WriteLine($"{i} {j}");
+        HighlightCell = new Point(i, j);
+    }
+
+    private void ClickOnNumpad(int i)
+    {
+        Field[(int)HighlightCell.X, (int)HighlightCell.Y] = i;
+    }
+
+    private string ReturnFieldCell(int i, int j)
+    {
+        string result = "";
+        if (Field[i, j] != 0) result = Field[i, j].ToString();
+        return result;
+    }
+
+    private string BackgroundColorCell(int i, int j)
+    {
+        Console.WriteLine($"{i} {j}");
+        Console.WriteLine((i + 1) * ((int)HighlightCell.X + 1));
+        Console.WriteLine((j + 1) * ((int)HighlightCell.Y + 1));
+        string result = "white";
+        if (new Point(i, j) == HighlightCell) result = "lightskyblue";
+        else if (i == HighlightCell.X || j == HighlightCell.Y ||
+            (i / 3 == (int)HighlightCell.X / 3 && j / 3 == (int)HighlightCell.Y / 3)) result = "gainsboro";
+        else if (Field[i, j] == Field[(int)HighlightCell.X, (int)HighlightCell.Y] && Field[i, j] != 0) result = "lightslategray";
+        return result;
+    }
+}
