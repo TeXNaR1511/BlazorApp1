@@ -45,6 +45,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: default;
 }
 
 .parent {
@@ -74,6 +75,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: gainsboro;
     color: royalblue;
+    background: gainsboro;
+    cursor: default;
+}
+
+#numpad-cell:hover {
+    background: silver;
 }

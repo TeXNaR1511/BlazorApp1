@@ -42,7 +42,8 @@
 
     private void ClickOnNumpad(int i)
     {
-        Field[(int)HighlightCell.X, (int)HighlightCell.Y] = i;
+        if (Field[(int)HighlightCell.X, (int)HighlightCell.Y] != i) Field[(int)HighlightCell.X, (int)HighlightCell.Y] = i;
+        else Field[(int)HighlightCell.X, (int)HighlightCell.Y] = 0;
     }
 
     private string ReturnFieldCell(int i, int j)
@@ -54,9 +55,9 @@
 
     private string BackgroundColorCell(int i, int j)
     {
-        Console.WriteLine($"{i} {j}");
-        Console.WriteLine((i + 1) * ((int)HighlightCell.X + 1));
-        Console.WriteLine((j + 1) * ((int)HighlightCell.Y + 1));
+        //Console.WriteLine($"{i} {j}");
+        //Console.WriteLine((i + 1) * ((int)HighlightCell.X + 1));
+        //Console.WriteLine((j + 1) * ((int)HighlightCell.Y + 1));
         string result = "white";
         if (new Point(i, j) == HighlightCell) result = "lightskyblue";
         else if (i == HighlightCell.X || j == HighlightCell.Y ||
@@ -64,4 +65,5 @@
         else if (Field[i, j] == Field[(int)HighlightCell.X, (int)HighlightCell.Y] && Field[i, j] != 0) result = "lightslategray";
         return result;
     }
+
 }
