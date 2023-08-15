@@ -1,27 +1,39 @@
 ﻿@page "/sudoku"
 
 <div class="parent">
-    <ul id="field">
+    <div id="field">
         @for (int i = 0; i < RowsAmount; i++)
         {
             for (int j = 0; j < ColsAmount; j++)
             {
                 int temp_i = i;
                 int temp_j = j;
-                <li id="field-cell" @onclick="() => ClickOnField(temp_i, temp_j)"
+                <div id="field-cell" @onclick="() => ClickOnField(temp_i, temp_j)"
                     style="background: @BackgroundColorCell(temp_i, temp_j)">
-                    @ReturnFieldCell(temp_i, temp_j)
-                </li>
+                    <div id="celltext">@ReturnFieldCell(temp_i, temp_j)</div>
+                    <div id="note">
+                        @for (int k = 0; k < 9; k++)
+                        {
+                            int temp_k = k;
+                            <div id="note-cell">@ReturnNoteCell(temp_i, temp_j, temp_k)</div>
+                        }
+                    </div>
+                </div>
             }
         }
-    </ul>
-    <ul id="numpad">
-        @for (int i = 0; i < 9; i++)
-        {
-            int temp_i = i;
-            <li id="numpad-cell" @onclick="() => ClickOnNumpad(temp_i + 1)">@(i + 1)</li>
-        }
-    </ul>
+    </div>
+    <div>
+        <button @onclick="ClickSolNote">@SolNoteName</button>
+        <button @onclick="NewGame">New Game</button>
+        <button @onclick="Check">Check</button>
+        <div id="numpad">
+            @for (int i = 0; i < 9; i++)
+            {
+                int temp_i = i;
+                <li id="numpad-cell" @onclick="() => ClickOnNumpad(temp_i + 1)">@(i + 1)</li>
+            }
+        </div>
+    </div>
 </div>
 
 @code {
@@ -30,20 +42,63 @@
 
     private int ColsAmount = 9;
 
+    private SudokuProblem sudoku = new SudokuProblem();
+
     private int[,] Field = new int[9, 9];
+
+    private int[,,] Note = new int[9, 9, 9];
 
     private Point HighlightCell = new Point();
 
+    private bool SolNote = true;
+
+    private string SolNoteName = "Solution";
+
+
     private void ClickOnField(int i, int j)
     {
-        //Console.WriteLine($"{i} {j}");
         HighlightCell = new Point(i, j);
     }
 
     private void ClickOnNumpad(int i)
     {
-        if (Field[(int)HighlightCell.X, (int)HighlightCell.Y] != i) Field[(int)HighlightCell.X, (int)HighlightCell.Y] = i;
-        else Field[(int)HighlightCell.X, (int)HighlightCell.Y] = 0;
+        int x = (int)HighlightCell.X;
+        int y = (int)HighlightCell.Y;
+        if (SolNote)
+        {
+            if (Field[x, y] != i)
+            {
+                //null all notes of number i in row, col, big cell
+                for (int k = 0; k < 9; k++)
+                {
+                    Note[k, y, i - 1] = 0;
+                    Note[x, k, i - 1] = 0;
+                }
+                for (int k = (x / 3) * 3; k < (x / 3) * 3 + 3; k++)
+                {
+                    for (int l = (y / 3) * 3; l < (y / 3) * 3 + 3; l++)
+                    {
+                        Note[k, l, i - 1] = 0;
+                    }
+                }
+                //null all notes in cell x,y
+                for (int k = 0; k < 9; k++)
+                {
+                    Note[x, y, k] = 0;
+                }
+                Field[x, y] = i;
+            }
+            else Field[x, y] = 0;
+        }
+        else
+        {
+            if (Note[x, y, i - 1] != i)
+            {
+                Field[x, y] = 0;
+                Note[x, y, i - 1] = i;
+            }
+            else Note[x, y, i - 1] = 0;
+        }
     }
 
     private string ReturnFieldCell(int i, int j)
@@ -53,11 +108,15 @@
         return result;
     }
 
+    private string ReturnNoteCell(int i, int j, int k)
+    {
+        string result = "";
+        if (Note[i, j, k] != 0) result = Note[i, j, k].ToString();
+        return result;
+    }
+
     private string BackgroundColorCell(int i, int j)
     {
-        //Console.WriteLine($"{i} {j}");
-        //Console.WriteLine((i + 1) * ((int)HighlightCell.X + 1));
-        //Console.WriteLine((j + 1) * ((int)HighlightCell.Y + 1));
         string result = "white";
         if (new Point(i, j) == HighlightCell) result = "lightskyblue";
         else if (i == HighlightCell.X || j == HighlightCell.Y ||
@@ -65,5 +124,36 @@
         else if (Field[i, j] == Field[(int)HighlightCell.X, (int)HighlightCell.Y] && Field[i, j] != 0) result = "lightslategray";
         return result;
     }
+
+    private void ClickSolNote()
+    {
+        SolNote = !SolNote;
+        if (SolNoteName == "Solution") SolNoteName = "Note";
+        else SolNoteName = "Solution";
+    }
+
+    private string Visibility(int i, int j)
+    {
+        string result = "hidden";
+        for (int k = 0; k < 9; k++)
+        {
+            if (Note[i, j, k] != 0) result = "visible";
+        }
+        return result;
+    }
+
+    private void NewGame()
+    {
+        Note = new int[9, 9, 9];
+        //Field = sudoku.Transpose(Field);
+        Field = sudoku.Initial();
+    }
+
+    private void Check()
+    {
+        Field = sudoku.BigSwapColumns(Field);
+    }
+
+
 
 }
