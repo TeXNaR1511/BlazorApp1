@@ -105,5 +105,73 @@
         {
             return SwapAreaRows(a, r.Next(0, N), r.Next(0, N));
         }
+
+        public int[,] Mix(int[,] a, int iterations = 15)
+        {
+            List<Func<int[,], int[,]>> functions = new List<Func<int[,], int[,]>>
+            {
+                Transpose,
+                SmallSwapColumns,
+                SmallSwapRows,
+                BigSwapColumns,
+                BigSwapRows,
+            };
+
+            for (int i = 0; i < iterations; i++)
+            {
+                a = functions[r.Next(0, 5)](a);
+            }
+    
+            return a;
+        }
+
+        public int[,] CreateSolution()
+        {
+            return Mix(Initial());
+        }
+
+        public int[,] CreateProblem(int[,] a, int difficult)
+        {
+            //return a;
+            return SimpleAlgorithm(a, difficult);
+            //return ImprovedAlgorithm(a);
+        }
+
+        public int[,] SimpleAlgorithm(int[,] a, int difficult)
+        {
+            for (int i = 0; i < difficult; i++)
+            {
+                int t = r.Next(0, N * N * N * N);
+                a[t / (N * N), t % (N * N)] = 0;
+            }
+            return a;
+        }
+
+        public int[,] ImprovedAlgorithm(int[,] a)
+        {
+            int[,] b = new int[N * N, N * N];
+
+            int iter = 0;
+            int difficult = N * N * N * N;
+
+            while (iter < N * N * N * N)
+            {
+                int i = r.Next(0, N * N);
+                int j = r.Next(0, N * N);
+
+                if (b[i, j] == 0)
+                {
+                    iter++;
+                    b[i, j] = 1;
+
+                    int temp = a[i, j];
+                    a[i, j] = 0;
+                    difficult--;
+
+
+                }
+            }
+            return a;
+        }
     }
 }

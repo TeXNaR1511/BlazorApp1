@@ -9,7 +9,8 @@
                 int temp_i = i;
                 int temp_j = j;
                 <div id="field-cell" @onclick="() => ClickOnField(temp_i, temp_j)"
-                    style="background: @BackgroundColorCell(temp_i, temp_j)">
+                    style="background: @BackgroundColorCell(temp_i, temp_j);
+                    color: @TextColorCell(temp_i, temp_j);">
                     <div id="celltext">@ReturnFieldCell(temp_i, temp_j)</div>
                     <div id="note">
                         @for (int k = 0; k < 9; k++)
@@ -23,9 +24,7 @@
         }
     </div>
     <div>
-        <button @onclick="ClickSolNote">@SolNoteName</button>
-        <button @onclick="NewGame">New Game</button>
-        <button @onclick="Check">Check</button>
+        <button style="width: 100px;" @onclick="ClickSolNote">@SolNoteName</button>
         <div id="numpad">
             @for (int i = 0; i < 9; i++)
             {
@@ -33,6 +32,7 @@
                 <li id="numpad-cell" @onclick="() => ClickOnNumpad(temp_i + 1)">@(i + 1)</li>
             }
         </div>
+        <button @onclick="NewGame">New Game</button>
     </div>
 </div>
 
@@ -45,6 +45,10 @@
     private SudokuProblem sudoku = new SudokuProblem();
 
     private int[,] Field = new int[9, 9];
+
+    private int[,] Solution = new int[9, 9];
+
+    private int[,] Problem = new int[9, 9];
 
     private int[,,] Note = new int[9, 9, 9];
 
@@ -64,41 +68,55 @@
     {
         int x = (int)HighlightCell.X;
         int y = (int)HighlightCell.Y;
-        if (SolNote)
+        //Console.WriteLine($"{Problem[x, y]} {Field[x, y]} {Solution[x, y]}");
+        if (Problem[x, y] == 0)
         {
-            if (Field[x, y] != i)
+            if (SolNote)
             {
-                //null all notes of number i in row, col, big cell
-                for (int k = 0; k < 9; k++)
+                if (Field[x, y] != i)
                 {
-                    Note[k, y, i - 1] = 0;
-                    Note[x, k, i - 1] = 0;
-                }
-                for (int k = (x / 3) * 3; k < (x / 3) * 3 + 3; k++)
-                {
-                    for (int l = (y / 3) * 3; l < (y / 3) * 3 + 3; l++)
+                    //null all notes of number i in row, col, big cell
+                    for (int k = 0; k < 9; k++)
                     {
-                        Note[k, l, i - 1] = 0;
+                        Note[k, y, i - 1] = 0;
+                        Note[x, k, i - 1] = 0;
                     }
+                    for (int k = (x / 3) * 3; k < (x / 3) * 3 + 3; k++)
+                    {
+                        for (int l = (y / 3) * 3; l < (y / 3) * 3 + 3; l++)
+                        {
+                            Note[k, l, i - 1] = 0;
+                        }
+                    }
+                    //null all notes in cell x,y
+                    for (int k = 0; k < 9; k++)
+                    {
+                        Note[x, y, k] = 0;
+                    }
+                    Field[x, y] = i;
                 }
-                //null all notes in cell x,y
-                for (int k = 0; k < 9; k++)
-                {
-                    Note[x, y, k] = 0;
-                }
-                Field[x, y] = i;
+                else Field[x, y] = 0;
             }
-            else Field[x, y] = 0;
-        }
-        else
-        {
-            if (Note[x, y, i - 1] != i)
+            else
             {
-                Field[x, y] = 0;
-                Note[x, y, i - 1] = i;
+                if (Note[x, y, i - 1] != i)
+                {
+                    Field[x, y] = 0;
+                    Note[x, y, i - 1] = i;
+                }
+                else Note[x, y, i - 1] = 0;
             }
-            else Note[x, y, i - 1] = 0;
         }
+        //Console.WriteLine($"{Problem[x, y]} {Field[x, y]} {Solution[x, y]}");
+        //Console.WriteLine("kek");
+        //for (int k = 0; k < 9; k++)
+        //{
+        //    for (int l = 0; l < 9; l++)
+        //    {
+        //        Console.WriteLine($"{Problem[k, l]} {Field[k, l]} {Solution[k, l]}");
+        //    }
+        //}
+        //Console.WriteLine("kekw");
     }
 
     private string ReturnFieldCell(int i, int j)
@@ -115,13 +133,52 @@
         return result;
     }
 
+    private bool IsValidCell(int i, int j)
+    {
+        if (Field[i, j] != Solution[i, j]) return false;
+        for (int k = 0; k < 9; k++)
+        {
+            if (Field[k, j] != Solution[k, j] || Field[i, k] != Solution[i, k]) return false;
+        }
+        for (int k = (i / 3) * 3; k < (i / 3) * 3 + 3; k++)
+        {
+            for (int l = (j / 3) * 3; l < (j / 3) * 3 + 3; l++)
+            {
+                if (Field[k, l] != Solution[k, l]) return false;
+            }
+        }
+        return true;
+    }
+
+    private bool IsValidField()
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                if (!IsValidCell(i, j)) return false;
+            }
+        }
+        return true;
+    }
+
     private string BackgroundColorCell(int i, int j)
     {
         string result = "white";
         if (new Point(i, j) == HighlightCell) result = "lightskyblue";
+        else if (Field[i, j] != Solution[i, j] && Field[i, j] != 0) result = "lightcoral";
         else if (i == HighlightCell.X || j == HighlightCell.Y ||
             (i / 3 == (int)HighlightCell.X / 3 && j / 3 == (int)HighlightCell.Y / 3)) result = "gainsboro";
         else if (Field[i, j] == Field[(int)HighlightCell.X, (int)HighlightCell.Y] && Field[i, j] != 0) result = "lightslategray";
+        return result;
+    }
+
+    private string TextColorCell(int i, int j)
+    {
+        string result = "";
+        if (Field[i, j] == Problem[i, j]) result = "black";
+        else if (Field[i, j] == Solution[i, j]) result = "royalblue";
+        else if (Field[i, j] != Solution[i, j]) result = "red";
         return result;
     }
 
@@ -146,12 +203,19 @@
     {
         Note = new int[9, 9, 9];
         //Field = sudoku.Transpose(Field);
-        Field = sudoku.Initial();
-    }
-
-    private void Check()
-    {
-        Field = sudoku.BigSwapColumns(Field);
+        Solution = sudoku.CreateSolution();
+        Problem = sudoku.CreateProblem(Solution.Clone() as int[,], 45);
+        Field = Problem.Clone() as int[,];
+        //Console.WriteLine("kek");
+        //Console.WriteLine("Problem Field Solution");
+        //for (int i = 0; i < 9; i++)
+        //{
+        //    for (int j = 0; j < 9; j++)
+        //    {
+        //        Console.WriteLine($"{Problem[i, j]} {Field[i, j]} {Solution[i, j]}");
+        //    }
+        //}
+        //Console.WriteLine("kekw");
     }
 
 
