@@ -137,12 +137,25 @@
             //return ImprovedAlgorithm(a);
         }
 
+        
+        /// <summary>
+        /// Simple algorithm for creating sudoku problem. It just replace "difficult" number of 
+        /// cells randomly with 0 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="difficult"></param>
+        /// <returns></returns>
         public int[,] SimpleAlgorithm(int[,] a, int difficult)
         {
-            for (int i = 0; i < difficult; i++)
+            List<int> viewed = new List<int>();
+            while (viewed.Count < difficult)
             {
                 int t = r.Next(0, N * N * N * N);
-                a[t / (N * N), t % (N * N)] = 0;
+                if (!viewed.Any(x => x == t))
+                {
+                    a[t / (N * N), t % (N * N)] = 0;
+                    viewed.Add(t);
+                }
             }
             return a;
         }

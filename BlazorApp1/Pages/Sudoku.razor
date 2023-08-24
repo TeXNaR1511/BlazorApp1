@@ -1,6 +1,6 @@
 ﻿@page "/sudoku"
 
-<div class="parent">
+<div class="parent" style="user-select: none">
     <div id="field">
         @for (int i = 0; i < RowsAmount; i++)
         {
@@ -23,16 +23,40 @@
             }
         }
     </div>
-    <div>
-        <button style="width: 100px;" @onclick="ClickSolNote">@SolNoteName</button>
+    <div style="margin-left: 15px; margin-top: -15px;">
+        <div class="parent">
+            <div id="timer">@timeSpan.ToString(@"mm\:ss")</div>
+            <div id="playbutton" @onclick="PlayStopwatch">
+                <div id="centered" class=@PlayClass style=@PlayStyle></div>
+            </div>
+        </div>
+        <div class="parent" style="width: 100%; margin-top: 8px; margin-bottom: 5px;">
+            <div id="circlebutton" style="margin-right: 3px;" @onclick="Cancel">
+                <div id="centered">Cancel</div>
+            </div>
+            <div id="circlebutton" style="margin-left: 3px; margin-right: 3px;" @onclick="Clear">
+                <div id="centered">Clear</div>
+            </div>
+            <div id="noteswitch" style="margin-left: 3px; margin-right: 3px;" class=@SolNoteClass @onclick="ClickSolNote">
+                <div id="centered">Notes</div>
+                <div id="switcher" class=@SolNoteClass>
+                    <div id="centered">@SolNoteClass.ToUpper()</div>
+                </div>
+            </div>
+            <div id="circlebutton" style="margin-left: 3px;" @onclick="Hint">
+                <div id="centered">Hint</div>
+            </div>
+        </div>
         <div id="numpad">
             @for (int i = 0; i < 9; i++)
             {
                 int temp_i = i;
-                <li id="numpad-cell" @onclick="() => ClickOnNumpad(temp_i + 1)">@(i + 1)</li>
+                <div id="numpad-cell" @onclick="() => ClickOnNumpad(temp_i + 1)">@(i + 1)</div>
             }
         </div>
-        <button @onclick="NewGame">New Game</button>
+        <div id="ngbutton" @onclick="NewGame">
+            <div id="centered">New Game</div>
+        </div>
     </div>
 </div>
 
@@ -52,12 +76,99 @@
 
     private int[,,] Note = new int[9, 9, 9];
 
+    private List<int[,]> PastField = new();
+
+    private List<int[,,]> PastNote = new();
+
+    private List<Point> PastHighlight = new();
+
     private Point HighlightCell = new Point();
 
     private bool SolNote = true;
 
-    private string SolNoteName = "Solution";
+    private string SolNoteClass = "off";
 
+    private TimeSpan timeSpan;
+
+    private bool isRunning = false;
+
+    private DateTime startTime;
+
+    private Timer timer;
+
+    private string PlayClass = "fa fa-play";
+
+    private string PlayStyle = "font-size: 16px; margin-left: 1px;";
+
+    private void PlayStopwatch()
+    {
+        //Console.WriteLine("check");
+        if (!isRunning)
+        {
+            startTime = DateTime.Now - timeSpan;
+            timer = new Timer(UpdateTime, null, 0, 100);
+            isRunning = true;
+            PlayClass = "fa fa-pause";
+            PlayStyle = "font-size: 16px;";
+        }
+        else
+        {
+            timer?.Dispose();
+            isRunning = false;
+            PlayClass = "fa fa-play";
+            PlayStyle = "font-size: 16px; margin-left: 1px;";
+        }
+    }
+
+    //private void StopStopwatch()
+    //{
+    //    if (isRunning)
+    //    {
+    //        timer?.Dispose();
+    //        isRunning = false;
+    //        PlayClass = "fa fa-play";
+    //    }
+    //}
+
+    //private void ResetStopwatch()
+    //{
+    //    StopStopwatch();
+    //    timeSpan = TimeSpan.Zero;
+    //}
+
+    private bool ArraysEqual(int[,] a, int[,] b)
+    {
+        for(int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                //Console.WriteLine($"kek {a[i, j]} {b[i, j]}");
+                if (a[i, j] != b[i, j])
+                {
+                    //Console.WriteLine("kek");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void Update()
+    {
+        //add check if game is over
+        //if (ArraysEqual(Field, Solution))
+        //{
+        //    Console.WriteLine("congratulation");
+        //    PlayStopwatch();
+        //}
+    }
+
+    private void UpdateTime(object state)
+    {
+        timeSpan = DateTime.Now - startTime;
+        Update();
+        InvokeAsync(StateHasChanged);
+    }
 
     private void ClickOnField(int i, int j)
     {
@@ -71,6 +182,11 @@
         //Console.WriteLine($"{Problem[x, y]} {Field[x, y]} {Solution[x, y]}");
         if (Problem[x, y] == 0)
         {
+            //add current Field to Past
+            PastField.Add(Field.Clone() as int[,]);
+            PastNote.Add(Note.Clone() as int[,,]);
+            PastHighlight.Add(HighlightCell);
+
             if (SolNote)
             {
                 if (Field[x, y] != i)
@@ -165,28 +281,53 @@
     private string BackgroundColorCell(int i, int j)
     {
         string result = "white";
-        if (new Point(i, j) == HighlightCell) result = "lightskyblue";
-        else if (Field[i, j] != Solution[i, j] && Field[i, j] != 0) result = "lightcoral";
+        if (new Point(i, j) == HighlightCell) result = "#bbdefb";
+        else if ((Field[i, j] != Solution[i, j] || CheckPointNearInvalid(i, j, Field[i, j])) && Field[i, j] != 0) result = "#f7cfd6";
         else if (i == HighlightCell.X || j == HighlightCell.Y ||
-            (i / 3 == (int)HighlightCell.X / 3 && j / 3 == (int)HighlightCell.Y / 3)) result = "gainsboro";
-        else if (Field[i, j] == Field[(int)HighlightCell.X, (int)HighlightCell.Y] && Field[i, j] != 0) result = "lightslategray";
+            (i / 3 == (int)HighlightCell.X / 3 && j / 3 == (int)HighlightCell.Y / 3)) result = "#d3e3f1";   //"#e2ebf3";
+        else if (Field[i, j] == Field[(int)HighlightCell.X, (int)HighlightCell.Y] && Field[i, j] != 0) result = "#a8c2d9";
         return result;
     }
+
+    private List<Point> InvalidCells(int value)
+    {
+        List<Point> result = new();
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                if (Field[i, j] != Solution[i, j] && Field[i, j] == value) result.Add(new(i, j));
+            }
+        }
+        return result;
+    }
+
+    private bool CheckPointNearInvalid(int i, int j, int value)
+    {
+        List<Point> cells = InvalidCells(value);
+        for (int k = 0; k < cells.Count; k++)
+        {
+            if (i == cells[k].X || j == cells[k].Y ||
+            (i / 3 == (int)cells[k].X / 3 && j / 3 == (int)cells[k].Y / 3)) return true;
+        }
+        return false;
+    }
+
 
     private string TextColorCell(int i, int j)
     {
         string result = "";
         if (Field[i, j] == Problem[i, j]) result = "black";
-        else if (Field[i, j] == Solution[i, j]) result = "royalblue";
-        else if (Field[i, j] != Solution[i, j]) result = "red";
+        else if (Field[i, j] == Solution[i, j]) result = "rgb(0, 114, 227)";
+        else if (Field[i, j] != Solution[i, j]) result = "#e55c6c";
         return result;
     }
 
     private void ClickSolNote()
     {
         SolNote = !SolNote;
-        if (SolNoteName == "Solution") SolNoteName = "Note";
-        else SolNoteName = "Solution";
+        if (SolNoteClass == "off") SolNoteClass = "on";
+        else SolNoteClass = "off";
     }
 
     private string Visibility(int i, int j)
@@ -204,7 +345,7 @@
         Note = new int[9, 9, 9];
         //Field = sudoku.Transpose(Field);
         Solution = sudoku.CreateSolution();
-        Problem = sudoku.CreateProblem(Solution.Clone() as int[,], 45);
+        Problem = sudoku.CreateProblem(Solution.Clone() as int[,], 64);
         Field = Problem.Clone() as int[,];
         //Console.WriteLine("kek");
         //Console.WriteLine("Problem Field Solution");
@@ -218,6 +359,51 @@
         //Console.WriteLine("kekw");
     }
 
+    private void Hint()
+    {
+        int x = (int)HighlightCell.X;
+        int y = (int)HighlightCell.Y;
+        if (Problem[x, y] == 0) Field[x, y] = Solution[x, y];
+    }
 
+    private void Clear()
+    {
+        int x = (int)HighlightCell.X;
+        int y = (int)HighlightCell.Y;
+        if (Problem[x, y] == 0)
+        {
+            Field[x, y] = 0;
+            for (int k = 0; k < 9; k++)
+            {
+                Note[x, y, k] = 0;
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        //for (int i = 0; i < Past.Count; i++)
+        //{
+        //    Console.WriteLine("start");
+        //    for (int j = 0; j < 9; j++)
+        //    {
+        //        for (int k = 0; k < 9; k++)
+        //        {
+        //            Console.WriteLine(Past[i][j, k]);
+        //        }
+        //    }
+        //    Console.WriteLine("end");
+        //}
+        if (PastField.Count > 0 && PastNote.Count > 0 && PastHighlight.Count > 0)
+        {
+            Field = PastField[^1];
+            Note = PastNote[^1];
+            HighlightCell = PastHighlight[^1];
+
+            PastField.RemoveAt(PastField.Count - 1);
+            PastNote.RemoveAt(PastNote.Count - 1);
+            PastHighlight.RemoveAt(PastHighlight.Count - 1);
+        }
+    }
 
 }

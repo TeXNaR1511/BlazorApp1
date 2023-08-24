@@ -1,37 +1,41 @@
 ﻿#field-cell:nth-child(n):nth-child(-n+9) {
-    border-top-width: 5px;
+    border-top-width: 4px;
 }
 
 #field-cell:nth-child(n+73):nth-child(-n+81) {
-    border-bottom-width: 5px;
+    border-bottom-width: 4px;
 }
 
 #field-cell:nth-child(3n) {
-    border-right-width: 5px;
+    border-right-width: 3px;
+}
+
+#field-cell:nth-child(9n) {
+    border-right-width: 4px;
 }
 
 #field-cell:nth-child(9n+1) {
-    border-left-width: 5px;
+    border-left-width: 4px;
 }
 
 #field-cell:nth-child(n+19):nth-child(-n+27) {
-    border-bottom-width: 5px;
+    border-bottom-width: 3px;
 }
 
 #field-cell:nth-child(n+46):nth-child(-n+54) {
-    border-bottom-width: 5px;
+    border-bottom-width: 3px;
 }
 
 #field {
     display: grid;
-    grid-template-columns: 56px 52px 56px 52px 52px 56px 52px 52px 56px;
-    grid-template-rows: 56px 52px 56px 52px 52px 56px 52px 52px 56px;
+    grid-template-columns: 57px 54px 56px 54px 54px 56px 54px 54px 57px;
+    grid-template-rows: 57px 54px 56px 54px 54px 56px 54px 54px 57px;
     justify-content: center;
     align-content: center;
     list-style: none;
     gap: 0rem;
-    margin-top: -10px;
-    margin-left: -20px;
+    margin-top: -12px;
+    margin-left: -25px;
     padding: 0;
     font-size: 40px;
     text-align: center;
@@ -58,8 +62,8 @@
 
 #numpad {
     display: grid;
-    grid-template-columns: repeat(3, 4vw);
-    grid-template-rows: repeat(3, 4vw);
+    grid-template-columns: 98px 101px 98px;
+    grid-template-rows: 98px 101px 98px;
     justify-content: center;
     align-content: center;
     text-align: center;
@@ -68,25 +72,51 @@
     margin-top: 0px;
     margin-left: 0px;
     padding: 0;
-    font-size: calc(2vw + 10px);
+    font-size: 50px;
 }
 
 #numpad-cell {
-    margin: 2px;
     padding: 0;
     text-align: center;
     border: 0;
-    border-radius: 5px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: blue;
-    background: gainsboro;
+    color: #0072e3;
+    background: #eaeef4;
     cursor: default;
 }
 
+#numpad-cell:nth-child(3n+1){
+    margin-right: 3px;
+}
+
+#numpad-cell:nth-child(3n+2) {
+    margin-right: 3px;
+    margin-left: 3px;
+}
+
+#numpad-cell:nth-child(3n) {
+    margin-left: 3px;
+}
+
+#numpad-cell:nth-child(-n+6) {
+    margin-bottom: 3px;
+}
+
+#numpad-cell:nth-child(n+4) {
+    margin-top: 3px;
+}
+
 #numpad-cell:hover {
-    background: silver;
+    background: #dce3ed;
+    cursor: pointer;
+}
+
+#numpad-cell:active {
+    background: #d2dae7;
+    cursor: pointer;
 }
 
 #note {
@@ -124,4 +154,123 @@
     margin-top: 0px;
     margin-left: 0px;
     display: flex;
+}
+
+#ngbutton {
+    width: 100%;
+    height: 80px;
+    background: #0072e3;
+    color: white;
+    text-align: center;
+    justify-content: center;
+    font-size: 35px;
+    position: relative;
+    margin-top: 7px;
+    border-radius: 7px;
+}
+
+#ngbutton:hover {
+    background: #0065c8;
+    cursor: pointer;
+}
+
+#ngbutton:active {
+    background: #3a90e5;
+    cursor: pointer;
+}
+
+#centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    clear: both;
+    display: inline-block;
+    overflow: hidden;
+}
+
+#noteswitch {
+    width: 70px;
+    height: 70px;
+    color: #0072e3;
+    text-align: center;
+    justify-content: center;
+    font-size: 18px;
+    position: relative;
+    background: #eaeef4;
+}
+
+#noteswitch.off {
+    border: 0px solid;
+    border-radius: 35px;
+}
+
+#noteswitch.on {
+    border: 3px solid #0072e3;
+    border-radius: 35px;
+}
+
+#noteswitch:hover {
+    background: #dce3ed;
+    cursor: pointer;
+}
+
+#switcher {
+    position: absolute;
+    width: 34px;
+    height: 24px;
+    color: white;
+    text-align: center;
+    justify-content: center;
+    font-size: 13px;
+    border-radius: 15px;
+}
+
+#switcher.off {
+    background: #adb6c2;
+    top: -7px;
+    right: -7px;
+}
+
+#switcher.on {
+    background: #0072e3;
+    top: -10px;
+    right: -10px;
+}
+
+#timer {
+    margin-left: auto;
+    margin-right: 3px;
+}
+
+#playbutton {
+    width: 26px;
+    height: 26px;
+    border-radius: 13px;
+    background: #eaeef4;
+    position: relative;
+    border: black solid 2px;
+}
+
+#circlebutton {
+    width: 70px;
+    height: 70px;
+    color: #0072e3;
+    text-align: center;
+    justify-content: center;
+    font-size: 18px;
+    position: relative;
+    background: #eaeef4;
+    border-radius: 35px;
+}
+
+#circlebutton:hover {
+    background: #dce3ed;
+    cursor: pointer;
+}
+
+#circlebutton:active {
+    background: #d2dae7;
+    cursor: pointer;
 }
