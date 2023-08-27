@@ -22,9 +22,12 @@
                 </div>
             }
         }
+        <div id="circlepause" style="visibility: @visor;" @onclick="PlayStopwatch"></div>
+        <div id="centered" class="fa fa-play" style="color: white; font-size: 34px; margin-left: 2px; visibility: @visor;" @onclick="PlayStopwatch"></div>
     </div>
-    <div style="margin-left: 15px; margin-top: -15px;">
+    <div style="margin-left: 15px; margin-top: -15px; position: relative;">
         <div class="parent">
+            <div id="mist">Mistakes: @MistakeAmount</div>
             <div id="timer">@timeSpan.ToString(@"mm\:ss")</div>
             <div id="playbutton" @onclick="PlayStopwatch">
                 <div id="centered" class=@PlayClass style=@PlayStyle></div>
@@ -54,8 +57,41 @@
                 <div id="numpad-cell" @onclick="() => ClickOnNumpad(temp_i + 1)">@(i + 1)</div>
             }
         </div>
-        <div id="ngbutton" @onclick="NewGame">
+        <div id="ngbutton" @onclick="NGPress">
             <div id="centered">New Game</div>
+        </div>
+        <div id="textcloud" class=@animclass>
+            <div id="levelchoice">
+                <div id="textdifficult">Select Difficulty Level</div>
+                <div id="line"></div>
+                <div id="difficultfield">
+                    <div id="difficultfield-cell">
+                        <div id="icon" class="fa-solid fa-face-laugh"></div>
+                        <div id="texticon">Very Easy</div>
+                    </div>
+                    <div id="difficultfield-cell">
+                        <div id="icon" class="fa-solid fa-face-smile"></div>
+                        <div id="texticon">Easy</div>
+                    </div>
+                    <div id="difficultfield-cell">
+                        <div id="icon" class="fa-solid fa-face-meh"></div>
+                        <div id="texticon">Medium</div>
+                    </div>
+                    <div id="difficultfield-cell">
+                        <div id="icon" class="fa-solid fa-face-frown"></div>
+                        <div id="texticon">Difficult</div>
+                    </div>
+                    <div id="difficultfield-cell">
+                        <div id="icon" class="fa-solid fa-face-angry"></div>
+                        <div id="texticon">Evil</div>
+                    </div>
+                    <div id="difficultfield-cell" class="parent">
+                        <div id="icon" class="fa-solid fa-rotate-left"></div>
+                        <div id="texticon">Restart</div>
+                    </div>
+                </div>
+            </div>
+            <div id="arrow"></div>
         </div>
     </div>
 </div>
@@ -98,7 +134,13 @@
 
     private string PlayClass = "fa fa-play";
 
-    private string PlayStyle = "font-size: 16px; margin-left: 1px;";
+    private string PlayStyle = "font-size: 14px; margin-left: 1px;";
+
+    private string visor = "visible";
+
+    private int MistakeAmount = 0;
+
+    private string animclass = "fade_out";
 
     private void PlayStopwatch()
     {
@@ -109,14 +151,26 @@
             timer = new Timer(UpdateTime, null, 0, 100);
             isRunning = true;
             PlayClass = "fa fa-pause";
-            PlayStyle = "font-size: 16px;";
+            PlayStyle = "font-size: 14px; margin-left: 0px;";
+            visor = "hidden";
+
+            Cancel();
         }
         else
         {
             timer?.Dispose();
             isRunning = false;
             PlayClass = "fa fa-play";
-            PlayStyle = "font-size: 16px; margin-left: 1px;";
+            PlayStyle = "font-size: 14px; margin-left: 1px;";
+            visor = "visible";
+
+            PastField.Add(Field.Clone() as int[,]);
+            PastNote.Add(Note.Clone() as int[,,]);
+            PastHighlight.Add(HighlightCell);
+
+            Field = new int[9, 9];
+            Note = new int[9, 9, 9];
+            HighlightCell = new Point(4, 4);
         }
     }
 
@@ -177,52 +231,61 @@
 
     private void ClickOnNumpad(int i)
     {
-        int x = (int)HighlightCell.X;
-        int y = (int)HighlightCell.Y;
-        //Console.WriteLine($"{Problem[x, y]} {Field[x, y]} {Solution[x, y]}");
-        if (Problem[x, y] == 0)
+        if (isRunning)
         {
-            //add current Field to Past
-            PastField.Add(Field.Clone() as int[,]);
-            PastNote.Add(Note.Clone() as int[,,]);
-            PastHighlight.Add(HighlightCell);
+            int x = (int)HighlightCell.X;
+            int y = (int)HighlightCell.Y;
+            //Console.WriteLine($"{Problem[x, y]} {Field[x, y]} {Solution[x, y]}");
+            if (Problem[x, y] == 0)
+            {
+                //add current Field to Past
+                PastField.Add(Field.Clone() as int[,]);
+                PastNote.Add(Note.Clone() as int[,,]);
+                PastHighlight.Add(HighlightCell);
 
-            if (SolNote)
-            {
-                if (Field[x, y] != i)
+                if (SolNote)
                 {
-                    //null all notes of number i in row, col, big cell
-                    for (int k = 0; k < 9; k++)
+                    if (Field[x, y] != i)
                     {
-                        Note[k, y, i - 1] = 0;
-                        Note[x, k, i - 1] = 0;
-                    }
-                    for (int k = (x / 3) * 3; k < (x / 3) * 3 + 3; k++)
-                    {
-                        for (int l = (y / 3) * 3; l < (y / 3) * 3 + 3; l++)
+                        //null all notes of number i in row, col, big cell
+                        for (int k = 0; k < 9; k++)
                         {
-                            Note[k, l, i - 1] = 0;
+                            Note[k, y, i - 1] = 0;
+                            Note[x, k, i - 1] = 0;
                         }
+                        for (int k = (x / 3) * 3; k < (x / 3) * 3 + 3; k++)
+                        {
+                            for (int l = (y / 3) * 3; l < (y / 3) * 3 + 3; l++)
+                            {
+                                Note[k, l, i - 1] = 0;
+                            }
+                        }
+                        //null all notes in cell x,y
+                        for (int k = 0; k < 9; k++)
+                        {
+                            Note[x, y, k] = 0;
+                        }
+
+                        Field[x, y] = i;
+
+                        if (Solution[x, y] != i) MistakeAmount++;
                     }
-                    //null all notes in cell x,y
-                    for (int k = 0; k < 9; k++)
-                    {
-                        Note[x, y, k] = 0;
-                    }
-                    Field[x, y] = i;
+                    else Field[x, y] = 0;
                 }
-                else Field[x, y] = 0;
-            }
-            else
-            {
-                if (Note[x, y, i - 1] != i)
+                else
                 {
-                    Field[x, y] = 0;
-                    Note[x, y, i - 1] = i;
+                    if (Note[x, y, i - 1] != i)
+                    {
+                        Field[x, y] = 0;
+                        Note[x, y, i - 1] = i;
+                    }
+                    else Note[x, y, i - 1] = 0;
                 }
-                else Note[x, y, i - 1] = 0;
             }
         }
+
+        else PlayStopwatch();
+
         //Console.WriteLine($"{Problem[x, y]} {Field[x, y]} {Solution[x, y]}");
         //Console.WriteLine("kek");
         //for (int k = 0; k < 9; k++)
@@ -281,11 +344,14 @@
     private string BackgroundColorCell(int i, int j)
     {
         string result = "white";
-        if (new Point(i, j) == HighlightCell) result = "#bbdefb";
-        else if ((Field[i, j] != Solution[i, j] || CheckPointNearInvalid(i, j, Field[i, j])) && Field[i, j] != 0) result = "#f7cfd6";
-        else if (i == HighlightCell.X || j == HighlightCell.Y ||
-            (i / 3 == (int)HighlightCell.X / 3 && j / 3 == (int)HighlightCell.Y / 3)) result = "#d3e3f1";   //"#e2ebf3";
-        else if (Field[i, j] == Field[(int)HighlightCell.X, (int)HighlightCell.Y] && Field[i, j] != 0) result = "#a8c2d9";
+        if (isRunning)
+        {
+            if (new Point(i, j) == HighlightCell) result = "#bbdefb";
+            else if ((Field[i, j] != Solution[i, j] || CheckPointNearInvalid(i, j, Field[i, j])) && Field[i, j] != 0) result = "#f7cfd6";
+            else if (i == HighlightCell.X || j == HighlightCell.Y ||
+                (i / 3 == (int)HighlightCell.X / 3 && j / 3 == (int)HighlightCell.Y / 3)) result = "#d3e3f1";   //"#e2ebf3";
+            else if (Field[i, j] == Field[(int)HighlightCell.X, (int)HighlightCell.Y] && Field[i, j] != 0) result = "#a8c2d9";
+        }
         return result;
     }
 
@@ -325,9 +391,14 @@
 
     private void ClickSolNote()
     {
-        SolNote = !SolNote;
-        if (SolNoteClass == "off") SolNoteClass = "on";
-        else SolNoteClass = "off";
+        if (isRunning)
+        {
+            SolNote = !SolNote;
+            if (SolNoteClass == "off") SolNoteClass = "on";
+            else SolNoteClass = "off";
+        }
+
+        else PlayStopwatch();
     }
 
     private string Visibility(int i, int j)
@@ -342,6 +413,12 @@
 
     private void NewGame()
     {
+        PastField.Clear();
+        PastNote.Clear();
+        PastHighlight.Clear();
+
+        MistakeAmount = 0;
+
         Note = new int[9, 9, 9];
         //Field = sudoku.Transpose(Field);
         Solution = sudoku.CreateSolution();
@@ -361,23 +438,34 @@
 
     private void Hint()
     {
-        int x = (int)HighlightCell.X;
-        int y = (int)HighlightCell.Y;
-        if (Problem[x, y] == 0) Field[x, y] = Solution[x, y];
+        if (isRunning)
+        {
+            int x = (int)HighlightCell.X;
+            int y = (int)HighlightCell.Y;
+            if (Problem[x, y] == 0) Field[x, y] = Solution[x, y];
+        }
+
+        else PlayStopwatch();
     }
 
     private void Clear()
     {
-        int x = (int)HighlightCell.X;
-        int y = (int)HighlightCell.Y;
-        if (Problem[x, y] == 0)
+        if (isRunning)
         {
-            Field[x, y] = 0;
-            for (int k = 0; k < 9; k++)
+            int x = (int)HighlightCell.X;
+            int y = (int)HighlightCell.Y;
+            if (Problem[x, y] == 0)
             {
-                Note[x, y, k] = 0;
+                Field[x, y] = 0;
+                for (int k = 0; k < 9; k++)
+                {
+                    Note[x, y, k] = 0;
+                }
             }
         }
+
+        else PlayStopwatch();
+
     }
 
     private void Cancel()
@@ -394,15 +482,34 @@
         //    }
         //    Console.WriteLine("end");
         //}
-        if (PastField.Count > 0 && PastNote.Count > 0 && PastHighlight.Count > 0)
-        {
-            Field = PastField[^1];
-            Note = PastNote[^1];
-            HighlightCell = PastHighlight[^1];
 
-            PastField.RemoveAt(PastField.Count - 1);
-            PastNote.RemoveAt(PastNote.Count - 1);
-            PastHighlight.RemoveAt(PastHighlight.Count - 1);
+        if (isRunning)
+        {
+            if (PastField.Count > 0 && PastNote.Count > 0 && PastHighlight.Count > 0)
+            {
+                Field = PastField[^1];
+                Note = PastNote[^1];
+                HighlightCell = PastHighlight[^1];
+
+                PastField.RemoveAt(PastField.Count - 1);
+                PastNote.RemoveAt(PastNote.Count - 1);
+                PastHighlight.RemoveAt(PastHighlight.Count - 1);
+            }
+        }
+
+        else PlayStopwatch();
+
+    }
+
+    private void NGPress()
+    {
+        if (animclass == "fade_in")
+        {
+            animclass = "fade_out";
+        }
+        else 
+        {
+            animclass = "fade_in";
         }
     }
 

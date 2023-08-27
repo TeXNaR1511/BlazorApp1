@@ -39,6 +39,7 @@
     padding: 0;
     font-size: 40px;
     text-align: center;
+    position: relative;
 }
 
 #field-cell {
@@ -241,16 +242,17 @@
 
 #timer {
     margin-left: auto;
-    margin-right: 3px;
+    margin-right: 7px;
+    font-size: 20px;
 }
 
 #playbutton {
-    width: 26px;
-    height: 26px;
+    width: 20px;
+    height: 20px;
     border-radius: 13px;
     background: #eaeef4;
     position: relative;
-    border: black solid 2px;
+    /*border: black solid 2px;*/
 }
 
 #circlebutton {
@@ -273,4 +275,165 @@
 #circlebutton:active {
     background: #d2dae7;
     cursor: pointer;
+}
+
+#mist {
+    margin-left: 0px;
+    margin-right: auto;
+    font-size: 20px;
+}
+
+#circlepause {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    clear: both;
+    display: inline-block;
+    overflow: hidden;
+    width: 68px;
+    height: 68px;
+    border-radius: 34px;
+    background: #0072e3;
+}
+
+#levelchoice {
+    position: absolute;
+    top: 6%;
+    left: 50%;
+    transform: translate(-50%, -0%);
+    width: 100%;
+    height: 360px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0px 0px 10px 5px rgba(0, 0, 0, 0.5), 0px 10px 5px -5px rgba(0, 0, 0, 0.5);
+}
+
+#arrow {
+    position: absolute;
+    background: white;
+    top: 377px;
+    left: 50%;
+    transform: translate(-50%, -0%) rotate(45deg);
+    width: 25px;
+    height: 25px;
+    box-shadow: 10px 10px 5px -5px rgba(0, 0, 0, 0.5), 0px 10px 5px -5px rgba(0, 0, 0, 0.5), 10px 0px 5px -5px rgba(0, 0, 0, 0.5);
+    /*border: 1px solid black;*/
+}
+
+#textcloud {
+    transition-property: opacity, visibility;
+    transition-timing-function: ease;
+    transition-duration: 500ms;
+}
+
+.fade_in {
+    opacity: 1;
+    visibility: visible;
+}
+
+.fade_out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.anim_f {
+    animation: 2s faded;
+    animation-fill-mode: forwards;
+}
+
+.anim_b {
+    animation: 2s faded;
+    animation-fill-mode: backwards;
+}
+
+@keyframes faded {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+#textdifficult {
+    position: absolute;
+    top: 3%;
+    left: 50%;
+    transform: translate(-50%, -0%);
+    white-space: nowrap;
+    clear: both;
+    display: inline-block;
+    overflow: hidden;
+    font-size: 22px;
+}
+
+#line {
+    border-top: 2px solid #c4daf7;
+    width: 100%;
+    position: absolute;
+    top: 13%;
+}
+
+#difficultfield {
+    display: grid;
+    position: absolute;
+    top: 66px;
+    left: 50%;
+    transform: translate(-50%, -0%);
+    background: #c4daf7;
+    width: 90%;
+    height: 274px;
+    border-radius: 10px;
+    grid-template-columns: 100%;
+    grid-template-rows: 45px 46px 46px 46px 46px 45px;
+}
+
+#difficultfield-cell {
+    color: #0072e3;
+    background: #f3f6fa;
+    cursor: default;
+    position: relative;
+}
+
+#difficultfield-cell:nth-child(-n+5){
+    border-bottom: 1px solid #c4daf7;
+}
+
+#difficultfield-cell:nth-child(n+2){
+    border-top: 1px solid #c4daf7;
+}
+
+#difficultfield-cell:nth-child(1){
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+#difficultfield-cell:nth-child(6){
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#difficultfield-cell:hover {
+    background: #c4daf7;
+    cursor: pointer;
+}
+
+#icon {
+    position: absolute;
+    top: 50%;
+    left: 7%;
+    transform: translate(-0%, -50%);
+    font-size: 20px;
+}
+
+#texticon {
+    position: absolute;
+    top: 50%;
+    left: 19%;
+    transform: translate(-0%, -50%);
+    color: #0072e3;
+    font-size: 20px;
 }
