@@ -130,25 +130,35 @@
             return Mix(Initial());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="difficult">
+        /// 0 - very easy, 1 - easy, 2 - medium, 3 - difficukt, 4 - evil
+        /// </param>
+        /// <returns></returns>
         public int[,] CreateProblem(int[,] a, int difficult)
         {
             //return a;
-            return SimpleAlgorithm(a, difficult);
+            int left = difficult == 0 ? 47 : difficult == 1 ? 36 : difficult == 2 ? 32 : difficult == 3 ? 28 : 17;
+            int right = difficult == 0 ? 52 : difficult == 1 ? 47 : difficult == 2 ? 36 : difficult == 3 ? 32 : 28;
+            int fill = r.Next(left, right);
+            return SimpleAlgorithm(a, fill);
             //return ImprovedAlgorithm(a);
         }
 
         
         /// <summary>
-        /// Simple algorithm for creating sudoku problem. It just replace "difficult" number of 
-        /// cells randomly with 0 
+        /// Simple algorithm for creating sudoku problem. It just remains fill number of cells 
         /// </summary>
         /// <param name="a"></param>
         /// <param name="difficult"></param>
         /// <returns></returns>
-        public int[,] SimpleAlgorithm(int[,] a, int difficult)
+        public int[,] SimpleAlgorithm(int[,] a, int fill)
         {
             List<int> viewed = new List<int>();
-            while (viewed.Count < difficult)
+            while (viewed.Count < N * N * N * N - fill)
             {
                 int t = r.Next(0, N * N * N * N);
                 if (!viewed.Any(x => x == t))

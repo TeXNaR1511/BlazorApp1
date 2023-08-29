@@ -50,7 +50,6 @@
     border-style: solid;
     border-color: black;
     display: flex;
-    cursor: default;
     align-items: center;
     justify-content: center;
     position: relative;
@@ -143,7 +142,6 @@
     margin: 0;
     padding: 0;
     display: flex;
-    cursor: default;
     justify-content: center;
     align-content: center;
     text-align: center;
@@ -168,6 +166,7 @@
     position: relative;
     margin-top: 7px;
     border-radius: 7px;
+    z-index: 100;
 }
 
 #ngbutton:hover {

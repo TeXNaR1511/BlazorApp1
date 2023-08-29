@@ -1,7 +1,7 @@
 ﻿@page "/sudoku"
 
-<div class="parent" style="user-select: none">
-    <div id="field">
+<div class="parent" style="user-select: none;" @onclick="ClosePanel">
+    <div id="field" style="cursor: @(visor == "hidden" ? "default" : "pointer");" @onclick="@(() => {if (visor == "visible") PlayStopwatch();})">
         @for (int i = 0; i < RowsAmount; i++)
         {
             for (int j = 0; j < ColsAmount; j++)
@@ -22,8 +22,10 @@
                 </div>
             }
         }
-        <div id="circlepause" style="visibility: @visor;" @onclick="PlayStopwatch"></div>
-        <div id="centered" class="fa fa-play" style="color: white; font-size: 34px; margin-left: 2px; visibility: @visor;" @onclick="PlayStopwatch"></div>
+        <div id="circlepause" style="visibility: @visor;">
+            <div id="centered" class="fa fa-play" style="color: white; font-size: 34px; margin-left: 2px;"></div>
+        </div>
+        
     </div>
     <div style="margin-left: 15px; margin-top: -15px; position: relative;">
         <div class="parent">
@@ -57,35 +59,35 @@
                 <div id="numpad-cell" @onclick="() => ClickOnNumpad(temp_i + 1)">@(i + 1)</div>
             }
         </div>
-        <div id="ngbutton" @onclick="NGPress">
+        <div id="ngbutton" @onclick="NGPress" @onclick:stopPropagation="true" @onclick:preventDefault="true">
             <div id="centered">New Game</div>
         </div>
-        <div id="textcloud" class=@animclass>
+        <div id="textcloud" class=@animclass @onclick:stopPropagation="true" @onclick:preventDefault="true">
             <div id="levelchoice">
                 <div id="textdifficult">Select Difficulty Level</div>
                 <div id="line"></div>
                 <div id="difficultfield">
-                    <div id="difficultfield-cell">
+                    <div id="difficultfield-cell" @onclick="@(() => NewGame(0))">
                         <div id="icon" class="fa-solid fa-face-laugh"></div>
                         <div id="texticon">Very Easy</div>
                     </div>
-                    <div id="difficultfield-cell">
+                    <div id="difficultfield-cell" @onclick="@(() => NewGame(1))">
                         <div id="icon" class="fa-solid fa-face-smile"></div>
                         <div id="texticon">Easy</div>
                     </div>
-                    <div id="difficultfield-cell">
+                    <div id="difficultfield-cell" @onclick="@(() => NewGame(2))">
                         <div id="icon" class="fa-solid fa-face-meh"></div>
                         <div id="texticon">Medium</div>
                     </div>
-                    <div id="difficultfield-cell">
+                    <div id="difficultfield-cell" @onclick="@(() => NewGame(3))">
                         <div id="icon" class="fa-solid fa-face-frown"></div>
                         <div id="texticon">Difficult</div>
                     </div>
-                    <div id="difficultfield-cell">
+                    <div id="difficultfield-cell" @onclick="@(() => NewGame(4))">
                         <div id="icon" class="fa-solid fa-face-angry"></div>
                         <div id="texticon">Evil</div>
                     </div>
-                    <div id="difficultfield-cell" class="parent">
+                    <div id="difficultfield-cell" @onclick="@(() => NewGame(0, false))">
                         <div id="icon" class="fa-solid fa-rotate-left"></div>
                         <div id="texticon">Restart</div>
                     </div>
@@ -141,6 +143,8 @@
     private int MistakeAmount = 0;
 
     private string animclass = "fade_out";
+
+    private bool NGButtonPressed = false;
 
     private void PlayStopwatch()
     {
@@ -411,19 +415,28 @@
         return result;
     }
 
-    private void NewGame()
+    private void NewGame(int difficult, bool ngplus = true)
     {
+        ClosePanel();
+
+        //to destory timer
+        isRunning = true;
+        PlayStopwatch();
+
+        timeSpan = TimeSpan.Zero;
+        PlayStopwatch();
+
         PastField.Clear();
         PastNote.Clear();
         PastHighlight.Clear();
 
         MistakeAmount = 0;
 
+
+
         Note = new int[9, 9, 9];
         //Field = sudoku.Transpose(Field);
-        Solution = sudoku.CreateSolution();
-        Problem = sudoku.CreateProblem(Solution.Clone() as int[,], 64);
-        Field = Problem.Clone() as int[,];
+
         //Console.WriteLine("kek");
         //Console.WriteLine("Problem Field Solution");
         //for (int i = 0; i < 9; i++)
@@ -434,6 +447,17 @@
         //    }
         //}
         //Console.WriteLine("kekw");
+
+        if (ngplus)
+        {
+            Solution = sudoku.CreateSolution();
+            Problem = sudoku.CreateProblem(Solution.Clone() as int[,], difficult);
+        }
+
+        Field = Problem.Clone() as int[,];
+
+        
+
     }
 
     private void Hint()
@@ -506,11 +530,40 @@
         if (animclass == "fade_in")
         {
             animclass = "fade_out";
+            //NGButtonPressed = false;
         }
         else 
         {
             animclass = "fade_in";
+            //NGButtonPressed = true;
         }
+        //Console.WriteLine("ng");
+        //if (animclass == "fade_out" && !NGButtonPressed)
+        //{
+        //    animclass = "fade_in";
+        //    Console.WriteLine("fade_in");
+        //    NGButtonPressed = true;
+        //}
     }
+
+    private void ClosePanel()
+    {
+        if (animclass == "fade_in")
+        {
+            animclass = "fade_out";
+            //NGButtonPressed = false;
+        }
+        //if (animclass == "fade_in" && !NG ButtonPressed)
+        //{
+        //    animclass = "fade_out";
+        //    Console.WriteLine("fade_out");
+        //    NGButtonPressed = false;
+        //}
+        //Console.WriteLine($"check");
+
+    }
+
+    
+    
 
 }
