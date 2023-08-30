@@ -1,7 +1,7 @@
 ﻿@page "/sudoku"
 
-<div class="parent" style="user-select: none;" @onclick="ClosePanel">
-    <div id="field" style="cursor: @(visor == "hidden" ? "default" : "pointer");" @onclick="@(() => {if (visor == "visible") PlayStopwatch();})">
+<div class="parent" style="user-select: none;" @onclick="ClosePanel" @onkeydown="KeyDownHandler" tabindex="0">
+    <div id="field" style="cursor: @(visor == "hidden" || victory ? "default" : "pointer");" @onclick="@(() => {if (visor == "visible" && !victory) PlayStopwatch();})">
         @for (int i = 0; i < RowsAmount; i++)
         {
             for (int j = 0; j < ColsAmount; j++)
@@ -22,10 +22,14 @@
                 </div>
             }
         }
-        <div id="circlepause" style="visibility: @visor;">
+        <div id="circlepause" style="visibility: @(victory ? "hidden" : visor);">
             <div id="centered" class="fa fa-play" style="color: white; font-size: 34px; margin-left: 2px;"></div>
         </div>
-        
+        <div id="shadow" class="@(victory ? "shad" : "noshad")" style="visibility: @(victory ? "visible" : "hidden")">
+            <div id="victory" class="@(victory ? "state1" : "state2")">
+                <div id="centered">You won!</div>
+            </div>
+        </div>
     </div>
     <div style="margin-left: 15px; margin-top: -15px; position: relative;">
         <div class="parent">
@@ -146,19 +150,24 @@
 
     private bool NGButtonPressed = false;
 
+    private bool victory = false;
+
     private void PlayStopwatch()
     {
         //Console.WriteLine("check");
         if (!isRunning)
         {
-            startTime = DateTime.Now - timeSpan;
-            timer = new Timer(UpdateTime, null, 0, 100);
-            isRunning = true;
-            PlayClass = "fa fa-pause";
-            PlayStyle = "font-size: 14px; margin-left: 0px;";
-            visor = "hidden";
+            if (!ArrayZero(Solution.Clone() as int[,]) && !ArrayZero(Problem.Clone() as int[,]))
+            {
+                startTime = DateTime.Now - timeSpan;
+                timer = new Timer(UpdateTime, null, 0, 100);
+                isRunning = true;
+                PlayClass = "fa fa-pause";
+                PlayStyle = "font-size: 14px; margin-left: 0px;";
+                visor = "hidden";
 
-            Cancel();
+                Cancel();
+            }
         }
         else
         {
@@ -211,14 +220,32 @@
         return true;
     }
 
+    private bool ArrayZero(int[,] a)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 9; j++)
+            {
+                if (a[i, j] != 0)
+                {
+                    //Console.WriteLine("kek");
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
     private void Update()
     {
         //add check if game is over
-        //if (ArraysEqual(Field, Solution))
-        //{
-        //    Console.WriteLine("congratulation");
-        //    PlayStopwatch();
-        //}
+        if (!ArrayZero(Field.Clone() as int[,]) && !ArrayZero(Solution.Clone() as int[,]) && ArraysEqual(Field.Clone() as int[,], Solution.Clone() as int[,]))
+        {
+            //Console.WriteLine("congratulation");
+            victory = true;
+            isRunning = true;
+            PlayStopwatch();
+        }
     }
 
     private void UpdateTime(object state)
@@ -350,7 +377,7 @@
         string result = "white";
         if (isRunning)
         {
-            if (new Point(i, j) == HighlightCell) result = "#bbdefb";
+            if (new Point(i, j) == HighlightCell) result = "cyan"; //"#9acaf1";
             else if ((Field[i, j] != Solution[i, j] || CheckPointNearInvalid(i, j, Field[i, j])) && Field[i, j] != 0) result = "#f7cfd6";
             else if (i == HighlightCell.X || j == HighlightCell.Y ||
                 (i / 3 == (int)HighlightCell.X / 3 && j / 3 == (int)HighlightCell.Y / 3)) result = "#d3e3f1";   //"#e2ebf3";
@@ -417,6 +444,18 @@
 
     private void NewGame(int difficult, bool ngplus = true)
     {
+        victory = false;
+
+        if (ngplus)
+        {
+            Solution = sudoku.CreateSolution();
+            Problem = sudoku.CreateProblem(Solution.Clone() as int[,], difficult);
+        }
+
+        Field = Problem.Clone() as int[,];
+
+
+
         ClosePanel();
 
         //to destory timer
@@ -448,15 +487,9 @@
         //}
         //Console.WriteLine("kekw");
 
-        if (ngplus)
-        {
-            Solution = sudoku.CreateSolution();
-            Problem = sudoku.CreateProblem(Solution.Clone() as int[,], difficult);
-        }
 
-        Field = Problem.Clone() as int[,];
 
-        
+
 
     }
 
@@ -563,7 +596,21 @@
 
     }
 
-    
+    private void KeyDownHandler(KeyboardEventArgs e)
+    {
+        //Console.WriteLine(e.Key);
+        if (isRunning)
+        {
+
+            if (e.Key == "ArrowLeft" && HighlightCell.Y > 0) HighlightCell = new Point(HighlightCell.X, HighlightCell.Y - 1);
+            if (e.Key == "ArrowRight" && HighlightCell.Y < 8) HighlightCell = new Point(HighlightCell.X, HighlightCell.Y + 1);
+            if (e.Key == "ArrowUp" && HighlightCell.X > 0) HighlightCell = new Point(HighlightCell.X - 1, HighlightCell.Y);
+            if (e.Key == "ArrowDown" && HighlightCell.X < 8) HighlightCell = new Point(HighlightCell.X + 1, HighlightCell.Y);
+
+            var isNumeric = int.TryParse(e.Key, out int n);
+            if (isNumeric && n > 0 && n < 10) ClickOnNumpad(n);
+        }
+    }
     
 
 }
